@@ -8,8 +8,8 @@ The idea is to use the super Mario game to generate data for a communicating age
   - Position of first pipe (x_pipe)
   - Position of coin (x_coin) 
 
-![Mario1](resources/figures/mario1.png =250x)
-![Mario1](resources/figures/mario2.png =250x)
+<img src="resources/figures/mario1.png" alt="drawing" width="200"/>
+<img src="resources/figures/mario2.png" alt="drawing" width="200"/>
 
 ### Reference experiment
   - Start game with randomly selected values for hidden states  
