@@ -1,8 +1,11 @@
 import numpy as np
+import src.constants as const
 
-box_x = np.random.uniform(low=100, high=800, size=1)
-pipe_x = np.random.uniform(low=800, high=1100, size=1)
-enemy_speed = np.random.choice(range(1, 11))
+box_x = const.box_x
+# enemy starts at x=800
+pipe_x = const.pipe_x 
+enemy_speed = const.enemy_speed 
+
 
 
 DEBUG = False

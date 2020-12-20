@@ -135,7 +135,7 @@
     ],
     "enemy":[
         {"0":[
-            {"x":800, "y":538, "direction":0, "type":0, "color":0}
+            {"x":500, "y":538, "direction":1, "type":0, "color":0}
         ]},
         {"1":[
             {"x":1920, "y":538, "direction":0, "type":0, "color":0}
