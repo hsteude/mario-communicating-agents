@@ -6,6 +6,7 @@ figures/training/*
 !figures/training/.gitkeep
 lightning_logs/*
 data/*
+data/.gitkeep
 
 
 # Byte-compiled / optimized / DLL files
