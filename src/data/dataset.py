@@ -3,18 +3,20 @@ from torch.utils.data import Dataset
 import pandas as pd
 import src.constants as const
 import torchvision
-import numpy as np
 import PIL
 import cv2
 import os
 
 
+cv2.setNumThreads(0)
+
+
 class VideoLabelDataset(Dataset):
     """Write me!"""
 
-    def __init__(self, csv_file, transform=None):
+    def __init__(self, csv_file, img_transform=None):
         self.dataframe = pd.read_csv(csv_file)
-        self.transform = transform
+        self.img_transform = img_transform
 
     def __len__(self):
         """Size of dataset
@@ -25,11 +27,13 @@ class VideoLabelDataset(Dataset):
         """Get one sample (including questions and answers"""
         video = self.dataframe.iloc[index].imgs_folder_path
         questions = self.dataframe.loc[index, const.QUESTION_COL]
-        answers = self.dataframe.loc[index, const.ANSWER_COLS].values
-        if self.transform:
-            video = self.transform(video)
-        return video, questions, answers
-
+        answers = self.dataframe.loc[
+            index, const.ANSWER_COLS].values.astype('float')
+        hidden_states = self.dataframe.loc[
+            index, const.HIDDEN_STATE_COLS].values.astype('float')
+        if self.img_transform:
+            video = self.img_transform(video)
+        return video, questions, answers, hidden_states
 
 
 class VideoFolderPathToTensor(object):
@@ -76,7 +80,8 @@ class VideoResize(object):
     Args:
         size (sequence): Desired output size. size is a sequence like (H, W),
             output size will matched to this.
-        interpolation (int, optional): Desired interpolation. Default is 'PIL.Image.BILINEAR'
+        interpolation (int, optional): Desired interpolation. Default is
+        'PIL.Image.BILINEAR'
     """
 
     def __init__(self, size, interpolation=PIL.Image.BILINEAR):
@@ -103,10 +108,10 @@ class VideoResize(object):
             torchvision.transforms.ToTensor(),
         ])
 
-        for l in range(L):
-            frame = video[:, l, :, :]
+        for len in range(L):
+            frame = video[:, len, :, :]
             frame = transform(frame)
-            rescaled_video[:, l, :, :] = frame
+            rescaled_video[:, len, :, :] = frame
 
         return rescaled_video
 
@@ -114,38 +119,9 @@ class VideoResize(object):
         return self.__class__.__name__ + '(size={0})'.format(self.size)
 
 
-class VideoRandomCrop(object):
-    """ Crop the given Video Tensor (C x L x H x W) at a random location.
-    Args:
-        size (sequence): Desired output size like (h, w).
-    """
-
-    def __init__(self, size):
-        assert len(size) == 2
-        self.size = size
-
-    def __call__(self, video):
-        """ 
-        Args:
-            video (torch.Tensor): Video (C x L x H x W) to be cropped.
-        Returns:
-            torch.Tensor: Cropped video (C x L x h x w).
-        """
-
-        H, W = video.size()[2:]
-        h, w = self.size
-        assert H >= h and W >= w
-
-        top = np.random.randint(0, H - h)
-        left = np.random.randint(0, W - w)
-
-        video = video[:, :, top: top + h, left: left + w]
-
-        return video
-
-
 if __name__ == '__main__':
     # test for VideoLabelDataset
+    breakpoint()
     labels_path = './data/labels_table_qa.csv'
     dataset = VideoLabelDataset(
         labels_path,

@@ -22,3 +22,18 @@ IMGS_PATH_COL = 'imgs_folder_path'
 HIDDEN_STATE_COLS = ['box_x', 'pipe_x', 'enemy_speed']
 QUESTION_COL = 'mario_speed'
 ANSWER_COLS = ['answer_box', 'answer_pipe', 'answer_enemy']
+
+# Training params
+BATCH_SIZE = 1
+NUM_DL_WORKERS = 12
+LEARNING_RATE = 0.0001
+VAL_SPLIT = 0.05
+
+# encoder params
+IMG_SIZE = (224, 224)
+NUM_HIDDEN_STATES = len(HIDDEN_STATE_COLS)
+ENC_DR_RATE = 0
+ENC_RNN_HIDDEN_DIM = 6
+ENC_RNN_NUM_LAYERS = 1
+ENC_PRETRAINED = True
+FIXED_CNN_WEIGHTS = True
