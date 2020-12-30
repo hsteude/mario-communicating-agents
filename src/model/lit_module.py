@@ -25,6 +25,7 @@ class LitModule(pl.LightningModule):
         super(LitModule, self).__init__()
 
         self.save_hyperparameters()
+        self.learning_rate = learning_rate
 
         # data set and loader related
         dataset = VideoLabelDataset(
@@ -66,19 +67,20 @@ class LitModule(pl.LightningModule):
         lat_space = self.encoder(videos)
         val_loss = self.loss_function(lat_space, hidden_states)
         self.logger.experiment.add_scalars("losses", {"val_loss": val_loss})
-        breakpoint()
         return val_loss
 
     def train_dataloader(self):
         return DataLoader(self.dataset_train,
                           batch_size=self.hparams.batch_size,
-                          num_workers=self.hparams.dl_num_workers)
+                          num_workers=self.hparams.dl_num_workers,
+                          pin_memory=True)
 
     def val_dataloader(self):
         return DataLoader(self.dataset_val,
                           batch_size=self.hparams.batch_size,
-                          num_workers=self.hparams.dl_num_workers)
+                          num_workers=self.hparams.dl_num_workers,
+                          pin_memory=True)
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(),
-                                lr=self.hparams.learning_rate)
+        return torch.optim.SGD(self.parameters(),
+                                lr=self.learning_rate)

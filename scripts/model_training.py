@@ -7,6 +7,8 @@ def main(args):
     # debugging forward pass
     lit_module = LitModule(**vars(args))
     trainer = pl.Trainer.from_argparse_args(args)
+    # trainer.tune(lit_module)
+    print(f'learning rate: {lit_module.learning_rate}')
     trainer.fit(lit_module)
 
 
@@ -31,5 +33,4 @@ if __name__ == '__main__':
     parser.add_argument('--validdation_split', type=float, default=0.05)
 
     args = parser.parse_args()
-    breakpoint()
     main(args)

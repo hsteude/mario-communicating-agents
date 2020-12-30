@@ -8,7 +8,7 @@ import cv2
 import os
 
 
-cv2.setNumThreads(0)
+# cv2.setNumThreads(0)
 
 
 class VideoLabelDataset(Dataset):
