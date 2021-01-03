@@ -54,7 +54,7 @@ class LitModule(pl.LightningModule):
         return mse_hidden
 
     def training_step(self, batch, batch_idx):
-        videos, _, _, hidden_states = batch
+        videos, _, _, hidden_states, _ = batch
 
         lat_space = self.encoder(videos)
 
@@ -63,7 +63,7 @@ class LitModule(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        videos, _, _, hidden_states = batch
+        videos, _, _, hidden_states, _ = batch
         lat_space = self.encoder(videos)
         val_loss = self.loss_function(lat_space, hidden_states)
         self.logger.experiment.add_scalars("losses", {"val_loss": val_loss})
@@ -83,4 +83,4 @@ class LitModule(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.parameters(),
-                                lr=self.learning_rate)
+                               lr=self.learning_rate)
