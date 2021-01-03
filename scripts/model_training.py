@@ -1,13 +1,13 @@
 from src.model.lit_module import LitModule
 import pytorch_lightning as pl
 import argparse
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 def main(args):
     # debugging forward pass
     lit_module = LitModule(**vars(args))
     trainer = pl.Trainer.from_argparse_args(args)
-    # trainer.tune(lit_module)
     print(f'learning rate: {lit_module.learning_rate}')
     trainer.fit(lit_module)
 

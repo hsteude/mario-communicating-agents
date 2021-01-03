@@ -82,5 +82,5 @@ class LitModule(pl.LightningModule):
                           pin_memory=True)
 
     def configure_optimizers(self):
-        return torch.optim.SGD(self.parameters(),
+        return torch.optim.Adam(self.parameters(),
                                 lr=self.learning_rate)
