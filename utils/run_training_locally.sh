@@ -1,6 +1,5 @@
 #!/bin/zsh
 source ~/.zshrc
-#conda activate com-agent
 conda activate mario
 python ./scripts/model_training.py \
         --enc_dr_rate=0 \

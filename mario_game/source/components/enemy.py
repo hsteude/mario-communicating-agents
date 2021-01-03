@@ -5,9 +5,10 @@ import pygame as pg
 from .. import setup, tools
 from .. import constants as c
 
-ENEMY_SPEED = c.enemy_speed
 
 def create_enemy(item, level):
+    global ENEMY_SPEED
+    ENEMY_SPEED = level.enemy_speed
     dir = c.LEFT if item['direction'] == 0 else c.RIGHT
     color = item[c.COLOR]
     if c.ENEMY_RANGE in item:

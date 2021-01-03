@@ -9,9 +9,13 @@ from ..components import info, stuff, player, brick, box, enemy, powerup, coin
 
 
 class Level(tools.State):
-    def __init__(self):
+    def __init__(self, box_x, pipe_x, enemy_speed):
+        """Modified: added stochastic vars"""
         tools.State.__init__(self)
         self.player = None
+        self.box_x = box_x
+        self.pipe_x = pipe_x
+        self.enemy_speed = enemy_speed
 
     def startup(self, current_time, persist):
         self.game_info = persist
@@ -44,8 +48,8 @@ class Level(tools.State):
         f = open(file_path)
         self.map_data = json.load(f)
         f.close()
-        self.map_data['box'][0]['x'] = c.box_x
-        self.map_data['pipe'][0]['x'] = c.pipe_x
+        self.map_data['box'][0]['x'] = self.box_x
+        self.map_data['pipe'][0]['x'] = self.pipe_x
 
 
         

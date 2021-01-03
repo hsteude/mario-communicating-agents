@@ -1,11 +1,6 @@
 import numpy as np
 import src.constants as const
 
-box_x = const.box_x
-# enemy starts at x=800
-pipe_x = const.pipe_x 
-enemy_speed = const.enemy_speed 
-
 
 
 DEBUG = False

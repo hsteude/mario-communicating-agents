@@ -1,4 +1,5 @@
 from mario_game.source import tools
+import numpy as np
 from mario_game.source import constants as c
 from src import constants as const
 from mario_game.source.states import main_menu, load_screen, level
@@ -7,10 +8,16 @@ import argparse
 
 
 def main(num_img, labels_table_path, imgs_folder_path):
+
+    # random hidden states
+    box_x = np.random.choice(range(300, 800))
+    pipe_x = np.random.choice(range(900, 1100))
+    enemy_speed = np.random.choice(range(25, 50))
+
     game = tools.Control()
     state_dict = {c.MAIN_MENU: main_menu.Menu(),
                   c.LOAD_SCREEN: load_screen.LoadScreen(),
-                  c.LEVEL: level.Level(),
+                  c.LEVEL: level.Level(box_x, pipe_x, enemy_speed),
                   c.GAME_OVER: load_screen.GameOver(),
                   c.TIME_OUT: load_screen.TimeOut()}
     game.setup_states(state_dict, c.MAIN_MENU)
@@ -18,7 +25,7 @@ def main(num_img, labels_table_path, imgs_folder_path):
 
     # write paths and random state vals to table
     header_row = 'imgs_folder_path,box_x,pipe_x,enemy_speed\n'
-    labels_row = f'{imgs_folder_path},{c.box_x[0]},{c.pipe_x[0]},{c.enemy_speed}\n'
+    labels_row = f'{imgs_folder_path},{box_x},{pipe_x},{enemy_speed}\n'
     if not os.path.isfile(labels_table_path):
         with open(labels_table_path, 'a') as fd:
             fd.write(header_row)
