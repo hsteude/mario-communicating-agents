@@ -2,6 +2,9 @@ from src.model.lit_module import LitModule
 import pytorch_lightning as pl
 import argparse
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning import seed_everything
+
+seed_everything(42)
 
 
 def main(args):
