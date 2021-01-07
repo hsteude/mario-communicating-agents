@@ -2,6 +2,7 @@ from torch import nn
 import torchvision
 import torch
 import src.constants as const
+import numpy as np
 
 
 class Encoder(nn.Module):
@@ -63,3 +64,22 @@ class Decoder(nn.Module):
             output = torch.tanh(h(output))
         output = self.fc_out(output)
         return output
+
+
+class Filter(nn.Module):
+    def __init__(self, filt_initial_log_var: float = -10,
+                 num_hidden_states: int = const.NUM_HIDDEN_STATES,
+                 device=None,
+                 **kwargs):
+        super(Filter, self).__init__()
+
+        self.device = device
+        self.selection_bias = nn.Parameter(torch.tensor(
+            np.array([filt_initial_log_var]*(num_hidden_states**2)).reshape(
+                num_hidden_states, num_hidden_states), dtype=torch.float32))
+
+    def forward(self, lat_space):
+        std = torch.exp(0.5*self.selection_bias)  # standard deviation
+        eps = torch.randn(lat_space.shape[0], *std.shape, device=self.device)
+        return [lat_space + std[i, :] * eps[:, i, :]
+                for i in range(std.shape[0])]

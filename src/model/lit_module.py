@@ -7,7 +7,7 @@ from src.data.dataset import (VideoLabelDataset,
                               VideoFolderPathToTensor,
                               VideoResize)
 import src.constants as const
-from src.model.agents import Encoder, Decoder
+from src.model.agents import Encoder, Decoder, Filter
 
 
 class LitModule(pl.LightningModule):
@@ -21,11 +21,14 @@ class LitModule(pl.LightningModule):
                  batch_size: float = 12,
                  dl_num_workers: float = 12,
                  validdation_split: float = 0.05,
+                 beta: float = 0.001,
+                 pretrain_thres: float = 0.001,
                  ** kwargs):
         super(LitModule, self).__init__()
 
         self.save_hyperparameters()
         self.learning_rate = learning_rate
+        self.pretrain = True
 
         # data set and loader related
         dataset = VideoLabelDataset(
@@ -38,47 +41,69 @@ class LitModule(pl.LightningModule):
         len_train = dataset_size - len_val
         self.dataset_train, self.dataset_val = torch.utils.data.random_split(
             dataset=dataset, lengths=[len_train, len_val],
-            generator=torch.Generator().manual_seed(42))
+            generator=torch.Generator())
 
-        # encoder
+        # encoder init
         self.encoder_agent = Encoder(**self.hparams)
 
-        # decoders
-        # self.decoding_agents = [Decoder(**self.hparams)
-                                # for _ in range(self.hparams.num_hidden_states)]
-        # the following is ugly, but it needs to be done, since 
+        # decoder init
+        # the following is ugly. i did it this way, bcause only attributes of
+        # type nn.Module will get send to GPUs (e.g. lists of nn.Modules won't)
         dec_names = [f'dec_{d}' for d in range(self.hparams.num_hidden_states)]
         for dn in dec_names:
             setattr(self, dn, Decoder(**self.hparams))
         self.decoding_agents = [getattr(self, dn) for dn in dec_names]
 
+        # filter init
+        self.filter = Filter(device=self.device, **self.hparams)
+
     def forward(self, videos):
         out = self.encoder_agent(videos)
         return out
 
-    def loss_function(self, dec_outs, answers):
+    def loss_function(self, dec_outs, answers, selection_bias, beta):
         mse_loss = torch.nn.MSELoss()
         answer_loss = mse_loss(dec_outs, answers)
-        return answer_loss
+        filter_loss = torch.mean(-torch.sum(selection_bias, axis=1))
+        return answer_loss + beta * filter_loss
 
     def training_step(self, batch, batch_idx):
         videos, questions, answers, _, _ = batch
         lat_space = self.encoder_agent(videos)
-        # TODO inssert filter step here
-        dec_outs = [dec(lat_space, questions) for dec in self.decoding_agents]
+        lat_space_filt_ls = self.filter(lat_space)
+        dec_outs = [dec(ls, questions) for dec, ls in zip(
+            self.decoding_agents, lat_space_filt_ls)]
         dec_outs = torch.cat(dec_outs, axis=1)
-        loss = self.loss_function(dec_outs, answers)
+
+        # set beta to 0 and force selection bias to initial value
+        # if within pre-training phase
+        if self.pretrain:
+            with torch.no_grad():
+                self.filter.selection_bias[:, :] = \
+                    torch.empty(*self.filter.selection_bias.shape)\
+                    .fill_(self.hparams.filt_initial_log_var)
+        beta = 0 if self.pretrain else self.hparams.beta
+
+        loss = self.loss_function(dec_outs, answers,
+                                  self.filter.selection_bias, beta)
         self.logger.experiment.add_scalars("losses", {"train_loss": loss})
+        self.log_selection_biases()
         return loss
 
     def validation_step(self, batch, batch_idx):
         videos, questions, answers, _, _ = batch
         lat_space = self.encoder_agent(videos)
-        # TODO inssert filter step here
+        lat_space_filt_ls = self.filter(lat_space)
+        dec_outs = [dec(ls, questions) for dec, ls in zip(
+            self.decoding_agents, lat_space_filt_ls)]
         dec_outs = [dec(lat_space, questions) for dec in self.decoding_agents]
         dec_outs = torch.cat(dec_outs, axis=1)
-        val_loss = self.loss_function(dec_outs, answers)
+        beta = 0 if self.pretrain else self.hparams.beta
+        val_loss = self.loss_function(dec_outs, answers,
+                                      self.filter.selection_bias, beta)
         self.logger.experiment.add_scalars("losses", {"val_loss": val_loss})
+        if val_loss < self.hparams.pretrain_thres:
+            self.pretrain = False
         return val_loss
 
     def train_dataloader(self):
@@ -96,3 +121,24 @@ class LitModule(pl.LightningModule):
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(),
                                 lr=self.learning_rate)
+
+    def log_selection_biases(self):
+        """Logs the selection bias for each agent to tensorboard"""
+        self.logger.experiment.add_scalars(
+            'sel_bias_a0',
+            {'lat_neu0': self.filter.selection_bias[0, 0],
+             'lat_neu1': self.filter.selection_bias[0, 1],
+             'lat_neu2': self.filter.selection_bias[0, 2]},
+            global_step=self.global_step)
+        self.logger.experiment.add_scalars(
+            'sel_bias_a1',
+            {'lat_neu0': self.filter.selection_bias[1, 0],
+             'lat_neu1': self.filter.selection_bias[1, 1],
+             'lat_neu2': self.filter.selection_bias[1, 2]},
+            global_step=self.global_step)
+        self.logger.experiment.add_scalars(
+            'sel_bias_b0',
+            {'lat_neu0': self.filter.selection_bias[2, 0],
+             'lat_neu1': self.filter.selection_bias[2, 1],
+             'lat_neu2': self.filter.selection_bias[2, 2]},
+            global_step=self.global_step)

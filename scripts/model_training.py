@@ -2,9 +2,9 @@ from src.model.lit_module import LitModule
 import pytorch_lightning as pl
 import argparse
 # from pytorch_lightning.callbacks import ModelCheckpoint
-# from pytorch_lightning import seed_everything
+from pytorch_lightning import seed_everything
 
-# seed_everything(42)
+seed_everything(42)
 
 
 def main(args):
@@ -36,11 +36,15 @@ if __name__ == '__main__':
     parser.add_argument('--dec_num_hidden_layers', type=int, default=2)
     parser.add_argument('--dec_single_answer_dim', type=int, default=1)
 
+    # filter related args
+    parser.add_argument('--filt_initial_log_var', type=float, default=0)
+
     # lit_module related args
     parser.add_argument('--learning_rate', type=float, default=0.001)
     parser.add_argument('--batch_size', type=int, default=12)
     parser.add_argument('--dl_num_workers', type=int, default=12)
     parser.add_argument('--validdation_split', type=float, default=0.05)
-
+    parser.add_argument('--pretrain_thres', type=float, default=0.001)
+    parser.add_argument('--beta', type=float, default=0.001)
     args = parser.parse_args()
     main(args)

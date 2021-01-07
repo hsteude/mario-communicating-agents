@@ -7,7 +7,6 @@ IMGS_SERIES_FOLDER_PATH = os.path.join(DATA_ROOT_PATH, 'imgs_series')
 LABELS_TABLE_PATH = os.path.join(DATA_ROOT_PATH, 'labels_table.csv')
 LABELS_TABLE_QA_PATH = os.path.join(DATA_ROOT_PATH, 'labels_table_qa.csv')
 
-
 # random question parameters (marios speed)
 MARIO_SPEED_MIN = 50
 MARIO_SPEED_MAX = 100

@@ -10,6 +10,8 @@ python ./scripts/model_training.py \
         --dec_hidden_size=32 \
         --dec_num_hidden_layers=10 \
         --dec_single_answer_dim=1 \
+        --filt_initial_log_var=-10 \
+        --beta=0.0 \
         --learning_rate=0.001 \
         --batch_size=32 \
         --dl_num_workers=8 \
