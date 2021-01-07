@@ -128,7 +128,6 @@ class VideoResize(object):
 
 if __name__ == '__main__':
     # test for VideoLabelDataset
-    breakpoint()
     labels_path = './data/labels_table_qa.csv'
     dataset = VideoLabelDataset(
         labels_path,

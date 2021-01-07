@@ -7,8 +7,8 @@ python ./scripts/model_training.py \
         --enc_rnn_num_layers=2 \
         --num_hidden_states=3 \
         --dec_num_question_inputs=1 \
-        --dec_hidden_size=3 \
-        --dec_num_hidden_layers=2 \
+        --dec_hidden_size=32 \
+        --dec_num_hidden_layers=10 \
         --dec_single_answer_dim=1 \
         --learning_rate=0.001 \
         --batch_size=32 \
