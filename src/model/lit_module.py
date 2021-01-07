@@ -50,7 +50,7 @@ class LitModule(pl.LightningModule):
     def loss_function(self, lat_space, hidden_states):
         mse_loss = torch.nn.MSELoss()
         mse_hidden = mse_loss(lat_space.type(torch.float32),
-                              hidden_states.type(torch.float32))
+                              hidden_states.type(torch.float32)[:, 1].view(-1, 1))
         return mse_hidden
 
     def training_step(self, batch, batch_idx):

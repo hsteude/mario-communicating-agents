@@ -1,11 +1,11 @@
 #!/bin/zsh
 source ~/.zshrc
-#conda activate com-agent
 conda activate mario
 python ./scripts/model_training.py \
         --enc_dr_rate=0 \
-        --enc_rnn_hidden_dim=32\
+        --enc_rnn_hidden_dim=32 \
         --enc_rnn_num_layers=2 \
+        --enc_num_hidden_states=1 \
         --learning_rate=0.001 \
         --batch_size=32 \
         --dl_num_workers=32 \

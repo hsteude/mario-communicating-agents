@@ -24,6 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--enc_dr_rate', type=float, default=0)
     parser.add_argument('--enc_rnn_hidden_dim', type=int, default=6)
     parser.add_argument('--enc_rnn_num_layers', type=int, default=1)
+    parser.add_argument('--enc_num_hidden_states', type=int, default=1)
     parser.add_argument('--enc_pretrained', default=True,
                         action=argparse.BooleanOptionalAction)
     parser.add_argument('--enc_fixed_cnn_weights', default=True,

@@ -6,7 +6,7 @@ import src.constants as const
 class Encoder(nn.Module):
     def __init__(self,  enc_dr_rate: float = 0.0,
                  enc_rnn_hidden_dim: int = 6, enc_rnn_num_layers: int = 1,
-                 num_hidden_states: int = const.NUM_HIDDEN_STATES,
+                 enc_num_hidden_states: int = const.NUM_HIDDEN_STATES,
                  enc_pretrained: bool = True,
                  enc_fixed_cnn_weights: bool = True,
                  **kwargs):
@@ -24,7 +24,7 @@ class Encoder(nn.Module):
         self.dropout = nn.Dropout(enc_dr_rate)
         self.rnn = nn.LSTM(enc_rnn_hidden_dim, enc_rnn_hidden_dim,
                            enc_rnn_num_layers)
-        self.fc_out = nn.Linear(enc_rnn_hidden_dim, num_hidden_states)
+        self.fc_out = nn.Linear(enc_rnn_hidden_dim, enc_num_hidden_states)
 
     def forward(self, videos):
         b_i, c, ts, h, w = videos.shape
