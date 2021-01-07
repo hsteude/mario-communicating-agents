@@ -31,7 +31,7 @@ class Encoder(nn.Module):
         ts_idx = 0
         y = self.cnn((videos[:, :, ts_idx, :, :]))
         output, (hn, cn) = self.rnn(y.unsqueeze(1))
-        for ii in range(1, ts):
+        for ts_idx in range(1, ts):
             y = self.cnn((videos[:, :, ts_idx, :, :]))
             out, (hn, cn) = self.rnn(y.unsqueeze(1), (hn, cn))
         out = self.dropout(out[:, -1])
