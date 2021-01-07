@@ -10,7 +10,7 @@ import os
 from sklearn.preprocessing import MinMaxScaler
 
 
-cv2.setNumThreads(0)
+# cv2.setNumThreads(0)
 
 
 class VideoLabelDataset(Dataset):

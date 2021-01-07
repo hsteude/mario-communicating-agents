@@ -44,8 +44,13 @@ class LitModule(pl.LightningModule):
         self.encoder_agent = Encoder(**self.hparams)
 
         # decoders
-        self.decoding_agents = [Decoder(**self.hparams)
-                                for _ in range(self.hparams.num_hidden_states)]
+        # self.decoding_agents = [Decoder(**self.hparams)
+                                # for _ in range(self.hparams.num_hidden_states)]
+        # the following is ugly, but it needs to be done, since 
+        dec_names = [f'dec_{d}' for d in range(self.hparams.num_hidden_states)]
+        for dn in dec_names:
+            setattr(self, dn, Decoder(**self.hparams))
+        self.decoding_agents = [getattr(self, dn) for dn in dec_names]
 
     def forward(self, videos):
         out = self.encoder_agent(videos)
