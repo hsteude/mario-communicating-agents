@@ -7,7 +7,7 @@ from src.data.dataset import (VideoLabelDataset,
                               VideoFolderPathToTensor,
                               VideoResize)
 import src.constants as const
-from src.model.encoder import Encoder
+from src.model.agents import Encoder, Decoder
 
 
 class LitModule(pl.LightningModule):
@@ -41,31 +41,38 @@ class LitModule(pl.LightningModule):
             generator=torch.Generator().manual_seed(42))
 
         # encoder
-        self.encoder = Encoder(**self.hparams)
+        self.encoder_agent = Encoder(**self.hparams)
+
+        # decoders
+        self.decoding_agents = [Decoder(**self.hparams)
+                                for _ in range(self.hparams.num_hidden_states)]
 
     def forward(self, videos):
-        out = self.encoder(videos)
+        out = self.encoder_agent(videos)
         return out
 
-    def loss_function(self, lat_space, hidden_states):
+    def loss_function(self, dec_outs, answers):
         mse_loss = torch.nn.MSELoss()
-        mse_hidden = mse_loss(lat_space.type(torch.float32),
-                              hidden_states.type(torch.float32))
-        return mse_hidden
+        answer_loss = mse_loss(dec_outs, answers)
+        return answer_loss
 
     def training_step(self, batch, batch_idx):
-        videos, _, _, hidden_states, _ = batch
-
-        lat_space = self.encoder(videos)
-
-        loss = self.loss_function(lat_space, hidden_states)
+        videos, questions, answers, _, _ = batch
+        lat_space = self.encoder_agent(videos)
+        # TODO inssert filter step here
+        dec_outs = [dec(lat_space, questions) for dec in self.decoding_agents]
+        dec_outs = torch.cat(dec_outs, axis=1)
+        loss = self.loss_function(dec_outs, answers)
         self.logger.experiment.add_scalars("losses", {"train_loss": loss})
         return loss
 
     def validation_step(self, batch, batch_idx):
-        videos, _, _, hidden_states, _ = batch
-        lat_space = self.encoder(videos)
-        val_loss = self.loss_function(lat_space, hidden_states)
+        videos, questions, answers, _, _ = batch
+        lat_space = self.encoder_agent(videos)
+        # TODO inssert filter step here
+        dec_outs = [dec(lat_space, questions) for dec in self.decoding_agents]
+        dec_outs = torch.cat(dec_outs, axis=1)
+        val_loss = self.loss_function(dec_outs, answers)
         self.logger.experiment.add_scalars("losses", {"val_loss": val_loss})
         return val_loss
 
