@@ -55,7 +55,6 @@ class LitModule(pl.LightningModule):
         self.decoding_agents = [getattr(self, dn) for dn in dec_names]
 
         # filter init
-        breakpoint()
         self.filter = Filter(**self.hparams)
 
     def forward(self, videos):
