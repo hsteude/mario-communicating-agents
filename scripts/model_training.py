@@ -5,6 +5,7 @@ import argparse
 from pytorch_lightning import seed_everything
 
 seed_everything(42)
+LAST_CKP = 'epoch=28-step=868.ckpt'
 
 
 def main(args):

@@ -55,7 +55,8 @@ class LitModule(pl.LightningModule):
         self.decoding_agents = [getattr(self, dn) for dn in dec_names]
 
         # filter init
-        self.filter = Filter(device=self.device, **self.hparams)
+        breakpoint()
+        self.filter = Filter(**self.hparams)
 
     def forward(self, videos):
         out = self.encoder_agent(videos)
@@ -70,7 +71,7 @@ class LitModule(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         videos, questions, answers, _, _ = batch
         lat_space = self.encoder_agent(videos)
-        lat_space_filt_ls = self.filter(lat_space)
+        lat_space_filt_ls = self.filter(lat_space, device=self.device)
         dec_outs = [dec(ls, questions) for dec, ls in zip(
             self.decoding_agents, lat_space_filt_ls)]
         dec_outs = torch.cat(dec_outs, axis=1)
@@ -93,7 +94,7 @@ class LitModule(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         videos, questions, answers, _, _ = batch
         lat_space = self.encoder_agent(videos)
-        lat_space_filt_ls = self.filter(lat_space)
+        lat_space_filt_ls = self.filter(lat_space, device=self.device)
         dec_outs = [dec(ls, questions) for dec, ls in zip(
             self.decoding_agents, lat_space_filt_ls)]
         dec_outs = [dec(lat_space, questions) for dec in self.decoding_agents]
