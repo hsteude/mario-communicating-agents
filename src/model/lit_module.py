@@ -76,7 +76,7 @@ class LitModule(pl.LightningModule):
         dec_outs = torch.cat(dec_outs, axis=1)
 
         # set beta to 0 and force selection bias to initial value
-        # if within pre-training phase
+        # if within pre-training phase (see validation step for phase switch)
         if self.pretrain:
             with torch.no_grad():
                 self.filter.selection_bias[:, :] = \
@@ -102,6 +102,8 @@ class LitModule(pl.LightningModule):
         val_loss = self.loss_function(dec_outs, answers,
                                       self.filter.selection_bias, beta)
         self.logger.experiment.add_scalars("losses", {"val_loss": val_loss})
+
+        # phase switch
         if val_loss < self.hparams.pretrain_thres:
             self.pretrain = False
         return val_loss
@@ -125,19 +127,19 @@ class LitModule(pl.LightningModule):
     def log_selection_biases(self):
         """Logs the selection bias for each agent to tensorboard"""
         self.logger.experiment.add_scalars(
-            'sel_bias_a0',
+            'selection_bias_dec_0',
             {'lat_neu0': self.filter.selection_bias[0, 0],
              'lat_neu1': self.filter.selection_bias[0, 1],
              'lat_neu2': self.filter.selection_bias[0, 2]},
             global_step=self.global_step)
         self.logger.experiment.add_scalars(
-            'sel_bias_a1',
+            'selection_bias_dec1',
             {'lat_neu0': self.filter.selection_bias[1, 0],
              'lat_neu1': self.filter.selection_bias[1, 1],
              'lat_neu2': self.filter.selection_bias[1, 2]},
             global_step=self.global_step)
         self.logger.experiment.add_scalars(
-            'sel_bias_b0',
+            'selection_bias_dec2',
             {'lat_neu0': self.filter.selection_bias[2, 0],
              'lat_neu1': self.filter.selection_bias[2, 1],
              'lat_neu2': self.filter.selection_bias[2, 2]},
