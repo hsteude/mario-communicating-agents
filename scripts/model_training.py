@@ -11,7 +11,8 @@ LAST_CKP = 'lightning_logs/version_11/checkpoints/epoch=999-step=29999.ckpt'
 def main(args):
     # debugging forward pass
     # lit_module = LitModule(**vars(args))
-    lit_module = LitModule.load_from_checkpoint(LAST_CKP)
+    lit_module = LitModule.load_from_checkpoint(LAST_CKP, **vars(args))
+
     trainer = pl.Trainer.from_argparse_args(args)
     # trainer = pl.Trainer(resume_from_checkpoint=LAST_CKP)
     print(f'learning rate: {lit_module.learning_rate}')
