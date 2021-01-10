@@ -12,7 +12,7 @@ python ./scripts/model_training.py \
         --dec_single_answer_dim=1 \
         --filt_initial_log_var=-10 \
         --pretrain_thres=0.2 \
-        --beta=0.001 \
+        --beta=0.01 \
         --learning_rate=0.0005 \
         --batch_size=32 \
         --dl_num_workers=8 \
