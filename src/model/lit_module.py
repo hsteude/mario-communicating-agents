@@ -127,7 +127,7 @@ class LitModule(pl.LightningModule):
     def log_selection_biases(self):
         """Logs the selection bias for each agent to tensorboard"""
         self.logger.experiment.add_scalars(
-            'selection_bias_dec_0',
+            'selection_bias_dec0',
             {'lat_neu0': self.filter.selection_bias[0, 0],
              'lat_neu1': self.filter.selection_bias[0, 1],
              'lat_neu2': self.filter.selection_bias[0, 2]},

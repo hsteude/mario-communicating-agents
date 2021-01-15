@@ -77,7 +77,7 @@ class Filter(nn.Module):
                 num_hidden_states, num_hidden_states), dtype=torch.float32))
 
     def forward(self, lat_space, device):
-        std = torch.exp(0.5*self.selection_bias)  # standard deviation
+        std = torch.exp(0.5 * self.selection_bias)
         eps = torch.randn(lat_space.shape[0], *std.shape, device=device)
         return [lat_space + std[i, :] * eps[:, i, :]
                 for i in range(std.shape[0])]
