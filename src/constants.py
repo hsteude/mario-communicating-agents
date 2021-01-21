@@ -1,4 +1,3 @@
-import numpy as np
 import os
 
 # paths
@@ -13,8 +12,7 @@ MARIO_SPEED_MAX = 100
 
 # columns and stuff
 IMGS_PATH_COL = 'imgs_folder_path'
-HIDDEN_STATE_COLS = ['box_x', 'pipe_x', 'enemy_speed']
-QUESTION_COL = 'mario_speed'
+HIDDEN_STATE_COLS = ['box_x', 'pipe_x', 'enemy_speed', 'mario_speed']
 ANSWER_COLS = ['answer_box', 'answer_pipe', 'answer_enemy']
 
 # Training params
@@ -25,7 +23,7 @@ VAL_SPLIT = 0.05
 
 # encoder params
 IMG_SIZE = (224, 224)
-NUM_HIDDEN_STATES = len(HIDDEN_STATE_COLS)
+LATENT_SPACE_SIZE = 5
 ENC_DR_RATE = 0
 ENC_RNN_HIDDEN_DIM = 6
 ENC_RNN_NUM_LAYERS = 1

@@ -49,7 +49,7 @@ class LitModule(pl.LightningModule):
         # decoder init
         # the following is ugly. i did it this way, bcause only attributes of
         # type nn.Module will get send to GPUs (e.g. lists of nn.Modules won't)
-        dec_names = [f'dec_{d}' for d in range(self.hparams.num_hidden_states)]
+        dec_names = [f'dec_{d}' for d in range(self.hparams.filt_num_decoders)]
         for dn in dec_names:
             setattr(self, dn, Decoder(**self.hparams))
         self.decoding_agents = [getattr(self, dn) for dn in dec_names]
@@ -68,10 +68,10 @@ class LitModule(pl.LightningModule):
         return answer_loss + beta * filter_loss
 
     def training_step(self, batch, batch_idx):
-        videos, questions, answers, _, _ = batch
+        videos, answers, _, _ = batch
         lat_space = self.encoder_agent(videos)
         lat_space_filt_ls = self.filter(lat_space, device=self.device)
-        dec_outs = [dec(ls, questions) for dec, ls in zip(
+        dec_outs = [dec(ls) for dec, ls in zip(
             self.decoding_agents, lat_space_filt_ls)]
         dec_outs = torch.cat(dec_outs, axis=1)
 
@@ -91,12 +91,13 @@ class LitModule(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        videos, questions, answers, _, _ = batch
+        breakpoint()
+        videos, answers, _, _ = batch
         lat_space = self.encoder_agent(videos)
         lat_space_filt_ls = self.filter(lat_space, device=self.device)
-        dec_outs = [dec(ls, questions) for dec, ls in zip(
+        dec_outs = [dec(ls) for dec, ls in zip(
             self.decoding_agents, lat_space_filt_ls)]
-        dec_outs = [dec(lat_space, questions) for dec in self.decoding_agents]
+        dec_outs = [dec(lat_space) for dec in self.decoding_agents]
         dec_outs = torch.cat(dec_outs, axis=1)
         beta = 0 if self.pretrain else self.hparams.beta
         val_loss = self.loss_function(dec_outs, answers,

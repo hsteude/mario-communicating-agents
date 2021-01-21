@@ -9,13 +9,14 @@ from ..components import info, stuff, player, brick, box, enemy, powerup, coin
 
 
 class Level(tools.State):
-    def __init__(self, box_x, pipe_x, enemy_speed):
+    def __init__(self, box_x, pipe_x, enemy_speed, mario_speed):
         """Modified: added stochastic vars"""
         tools.State.__init__(self)
         self.player = None
         self.box_x = box_x
         self.pipe_x = pipe_x
         self.enemy_speed = enemy_speed
+        self.mario_speed = mario_speed
 
     def startup(self, current_time, persist):
         self.game_info = persist
@@ -142,7 +143,7 @@ class Level(tools.State):
             
     def setup_player(self):
         if self.player is None:
-            self.player = player.Player(self.game_info[c.PLAYER_NAME])
+            self.player = player.Player(self.game_info[c.PLAYER_NAME], self.mario_speed)
         else:
             self.player.restart()
         self.player.rect.x = self.viewport.x + self.player_x

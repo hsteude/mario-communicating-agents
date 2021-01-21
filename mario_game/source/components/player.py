@@ -8,8 +8,9 @@ from .. import constants as c
 from ..components import powerup
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, player_name):
+    def __init__(self, player_name, mario_speed):
         pg.sprite.Sprite.__init__(self)
+        self.mario_speed = mario_speed
         self.player_name = player_name
         self.load_data()
         self.setup_timer()
@@ -47,6 +48,7 @@ class Player(pg.sprite.Sprite):
         file_path = os.path.join('mario_game', 'source', 'data', 'player', player_file)
         f = open(file_path)
         self.player_data = json.load(f)
+        self.player_data[c.PLAYER_SPEED][c.MAX_WALK_SPEED] = self.mario_speed
 
     def setup_timer(self):
         self.walking_timer = 0

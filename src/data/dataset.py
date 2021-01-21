@@ -32,15 +32,13 @@ class VideoLabelDataset(Dataset):
     def __getitem__(self, index):
         """Get one sample (including questions and answers"""
         video_path = self.dataframe.iloc[index].imgs_folder_path
-        questions = self.dataframe.loc[index, const.QUESTION_COL]\
-            .astype(np.float32)
         answers = self.dataframe.loc[
             index, const.ANSWER_COLS].values.astype(np.float32)
         hidden_states = self.dataframe.loc[
             index, const.HIDDEN_STATE_COLS].values.astype(np.float32)
         if self.img_transform:
             video = self.img_transform(video_path)
-        return video, questions, answers, hidden_states, video_path
+        return video, answers, hidden_states, video_path
 
 
 class VideoFolderPathToTensor(object):

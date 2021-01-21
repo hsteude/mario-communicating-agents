@@ -27,6 +27,7 @@ class QuestionAndOptimalAnswerGenerator():
             (mario_speed - enemy_speed)
 
     def compute_questions(self):
+        """TODO: Currently not in use!!"""
         self.df.loc[:, const.QUESTION_COL] = np.random.uniform(
             low=const.MARIO_SPEED_MIN, high=const.MARIO_SPEED_MAX,
             size=len(self.df))
@@ -41,6 +42,6 @@ class QuestionAndOptimalAnswerGenerator():
                     self.df.mario_speed, self.df[in_col])]
 
     def run(self):
-        self.compute_questions()
+        # self.compute_questions()
         self.compute_ansers()
         self.df.to_csv(const.LABELS_TABLE_QA_PATH)

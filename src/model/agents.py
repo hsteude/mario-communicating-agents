@@ -1,14 +1,13 @@
 from torch import nn
 import torchvision
 import torch
-import src.constants as const
 import numpy as np
 
 
 class Encoder(nn.Module):
     def __init__(self,  enc_dr_rate: float = 0.0,
                  enc_rnn_hidden_dim: int = 6, enc_rnn_num_layers: int = 1,
-                 num_hidden_states: int = const.NUM_HIDDEN_STATES,
+                 enc_dim_lat_space: int = 5,
                  enc_pretrained: bool = True,
                  enc_fixed_cnn_weights: bool = True,
                  **kwargs):
@@ -26,7 +25,7 @@ class Encoder(nn.Module):
         self.dropout = nn.Dropout(enc_dr_rate)
         self.rnn = nn.LSTM(enc_rnn_hidden_dim, enc_rnn_hidden_dim,
                            enc_rnn_num_layers)
-        self.fc_out = nn.Linear(enc_rnn_hidden_dim, num_hidden_states)
+        self.fc_out = nn.Linear(enc_rnn_hidden_dim, enc_dim_lat_space)
 
     def forward(self, videos):
         b_i, c, ts, h, w = videos.shape
@@ -40,25 +39,45 @@ class Encoder(nn.Module):
         out = self.fc_out(out)
         return out
 
+class Filter(nn.Module):
+    def __init__(self, filt_initial_log_var: float = -10,
+                 enc_dim_lat_space: int = 5,
+                 filt_num_decoders: int = 3,
+                 **kwargs):
+        super(Filter, self).__init__()
+
+        breakpoint()
+        self.selection_bias = nn.Parameter(torch.tensor(
+            np.array([filt_initial_log_var]*(
+                enc_dim_lat_space * filt_num_decoders)).reshape(
+                filt_num_decoders, enc_dim_lat_space), dtype=torch.float32))
+
+    def forward(self, lat_space, device):
+        std = torch.exp(0.5 * self.selection_bias)
+        eps = torch.randn(lat_space.shape[0], *std.shape, device=device)
+        return [lat_space + std[i, :] * eps[:, i, :]
+                for i in range(std.shape[0])]
+
 
 class Decoder(nn.Module):
-    def __init__(self, dec_num_question_inputs: int = 1,
-                 num_hidden_states: int = const.NUM_HIDDEN_STATES,
+    def __init__(self, dec_num_question_inputs: int = 0,
+                 enc_dim_lat_space: int = 5,
                  dec_hidden_size: int = 10,
                  dec_num_hidden_layers: int = 2,
-                 dec_single_answer_dim: int = 1,
+                 dec_out_dim: int = 6,
                  **kwargs):
         super(Decoder, self).__init__()
 
-        self.fc_in = nn.Linear(num_hidden_states + dec_num_question_inputs,
+        self.fc_in = nn.Linear(enc_dim_lat_space + dec_num_question_inputs,
                                dec_hidden_size)
         self.fc_hidden = nn.ModuleList(
             [nn.Linear(dec_hidden_size, dec_hidden_size)
              for i in range(dec_num_hidden_layers)])
-        self.fc_out = nn.Linear(dec_hidden_size, dec_single_answer_dim)
+        self.fc_out = nn.Linear(dec_hidden_size, dec_out_dim)
 
-    def forward(self, lat_space, questions):
-        input = torch.cat((lat_space, questions.view(-1, 1)), axis=1)
+    def forward(self, lat_space):
+        # input = torch.cat((lat_space, questions.view(-1, 1)), axis=1)
+        input = lat_space
         output = torch.tanh(self.fc_in(input))
         for h in self.fc_hidden:
             output = torch.tanh(h(output))
@@ -66,18 +85,3 @@ class Decoder(nn.Module):
         return output
 
 
-class Filter(nn.Module):
-    def __init__(self, filt_initial_log_var: float = -10,
-                 num_hidden_states: int = const.NUM_HIDDEN_STATES,
-                 **kwargs):
-        super(Filter, self).__init__()
-
-        self.selection_bias = nn.Parameter(torch.tensor(
-            np.array([filt_initial_log_var]*(num_hidden_states**2)).reshape(
-                num_hidden_states, num_hidden_states), dtype=torch.float32))
-
-    def forward(self, lat_space, device):
-        std = torch.exp(0.5 * self.selection_bias)
-        eps = torch.randn(lat_space.shape[0], *std.shape, device=device)
-        return [lat_space + std[i, :] * eps[:, i, :]
-                for i in range(std.shape[0])]
