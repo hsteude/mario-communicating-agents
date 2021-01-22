@@ -39,6 +39,7 @@ class Encoder(nn.Module):
         out = self.fc_out(out)
         return out
 
+
 class Filter(nn.Module):
     def __init__(self, filt_initial_log_var: float = -10,
                  enc_dim_lat_space: int = 5,
@@ -46,7 +47,6 @@ class Filter(nn.Module):
                  **kwargs):
         super(Filter, self).__init__()
 
-        breakpoint()
         self.selection_bias = nn.Parameter(torch.tensor(
             np.array([filt_initial_log_var]*(
                 enc_dim_lat_space * filt_num_decoders)).reshape(

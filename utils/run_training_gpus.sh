@@ -11,8 +11,8 @@ python ./scripts/model_training.py \
         --dec_num_hidden_layers=10 \
         --dec_out_dim=1 \
         --filt_initial_log_var=-10 \
-        --filt_num_decoders=3 \
-        --pretrain_thres=0.2 \
+        --filt_num_decoders=4 \
+        --pretrain_thres=0.1 \
         --beta=0.001 \
         --learning_rate=0.001 \
         --batch_size=32 \
