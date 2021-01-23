@@ -153,3 +153,12 @@ class LitModule(pl.LightningModule):
              'lat_neu4': self.filter.selection_bias[2, 4]
              },
             global_step=self.global_step)
+        self.logger.experiment.add_scalars(
+            'selection_bias_dec3',
+            {'lat_neu0': self.filter.selection_bias[3, 0],
+             'lat_neu1': self.filter.selection_bias[3, 1],
+             'lat_neu2': self.filter.selection_bias[3, 2],
+             'lat_neu3': self.filter.selection_bias[3, 3],
+             'lat_neu4': self.filter.selection_bias[3, 4]
+             },
+            global_step=self.global_step)
