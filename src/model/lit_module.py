@@ -126,39 +126,9 @@ class LitModule(pl.LightningModule):
 
     def log_selection_biases(self):
         """Logs the selection bias for each agent to tensorboard"""
-        self.logger.experiment.add_scalars(
-            'selection_bias_dec0',
-            {'lat_neu0': self.filter.selection_bias[0, 0],
-             'lat_neu1': self.filter.selection_bias[0, 1],
-             'lat_neu2': self.filter.selection_bias[0, 2],
-             'lat_neu3': self.filter.selection_bias[0, 3],
-             'lat_neu4': self.filter.selection_bias[0, 4]
-             },
-            global_step=self.global_step)
-        self.logger.experiment.add_scalars(
-            'selection_bias_dec1',
-            {'lat_neu0': self.filter.selection_bias[1, 0],
-             'lat_neu1': self.filter.selection_bias[1, 1],
-             'lat_neu2': self.filter.selection_bias[1, 2],
-             'lat_neu3': self.filter.selection_bias[1, 3],
-             'lat_neu4': self.filter.selection_bias[1, 4]
-             },
-            global_step=self.global_step)
-        self.logger.experiment.add_scalars(
-            'selection_bias_dec2',
-            {'lat_neu0': self.filter.selection_bias[2, 0],
-             'lat_neu1': self.filter.selection_bias[2, 1],
-             'lat_neu2': self.filter.selection_bias[2, 2],
-             'lat_neu3': self.filter.selection_bias[2, 3],
-             'lat_neu4': self.filter.selection_bias[2, 4]
-             },
-            global_step=self.global_step)
-        self.logger.experiment.add_scalars(
-            'selection_bias_dec3',
-            {'lat_neu0': self.filter.selection_bias[3, 0],
-             'lat_neu1': self.filter.selection_bias[3, 1],
-             'lat_neu2': self.filter.selection_bias[3, 2],
-             'lat_neu3': self.filter.selection_bias[3, 3],
-             'lat_neu4': self.filter.selection_bias[3, 4]
-             },
-            global_step=self.global_step)
+        for i in range(self.hparams.filt_num_decoders):
+            self.logger.experiment.add_scalars(
+                f'selection_bias_dec{i}',
+                {f'lat_neu{j}': self.filter.selection_bias[i, j]
+                    for j in range(self.hparams.enc_dim_lat_space)},
+                global_step=self.global_step)

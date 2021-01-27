@@ -30,7 +30,7 @@ class VideoLabelDataset(Dataset):
         return len(self.dataframe)
 
     def __getitem__(self, index):
-        """Get one sample (including questions and answers"""
+        """Get one sample (including questions and answers)"""
         video_path = self.dataframe.iloc[index].imgs_folder_path
         answers = self.dataframe.loc[
             index, const.ANSWER_COLS].values.astype(np.float32)
