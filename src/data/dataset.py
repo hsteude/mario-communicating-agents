@@ -38,6 +38,8 @@ class VideoLabelDataset(Dataset):
             index, const.HIDDEN_STATE_COLS].values.astype(np.float32)
         if self.img_transform:
             video = self.img_transform(video_path)
+        else:
+            video = np.nan
         return video, answers, hidden_states, video_path
 
 

@@ -85,3 +85,36 @@ class Decoder(nn.Module):
         return output
 
 
+class FormulaTransformer():
+    def __init__(self, formula_exponents=['-1', '-.5', '0, 1', '2'], **kwargs):
+        self.formula_exponents = [np.float(e) for e in formula_exponents]
+        self.num_params = len(formula_exponents)
+
+    def forward(self, params: torch.tensor, values: torch.tensor):
+        """sum over i of (pi * xi)^^ei) for i in range(num_params)
+        params: output of one decoder
+        values: output of filter (hopefully hidden states)
+        """
+        breakpoint()
+        return torch.sum([p * torch.pow(x, e) for p, x, e in zip(
+            params, values, self.formula_exponents)])
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
