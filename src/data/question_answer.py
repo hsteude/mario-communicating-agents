@@ -8,15 +8,15 @@ class QuestionAndOptimalAnswerGenerator():
         self.enemy_start_x = enemy_start_x
         self.df = df
 
-    def _compute_answer_box(self, mario_speed, box_x):
+    def _compute_answer_mario_box(self, mario_speed, box_x):
         distance = box_x - self.mario_start_x
         return distance / mario_speed
 
-    def _compute_answer_pipe(self, mario_speed, pipe_x):
-        distance = pipe_x - self.mario_start_x
-        return distance / mario_speed
+    def _compute_answer_enemy_pipe(self, enemy_speed, pipe_x):
+        distance = pipe_x - self.enemy_start_x
+        return distance / enemy_speed
 
-    def _compute_anser_enemy(self, mario_speed, enemy_speed):
+    def _compute_anser_mario_enemy(self, mario_speed, enemy_speed):
         """
         x_m = x_m0 + v_m * t
         x_e = x_e0 + v_e * t
@@ -26,19 +26,9 @@ class QuestionAndOptimalAnswerGenerator():
         return (self.enemy_start_x - self.mario_start_x) /\
             (mario_speed - enemy_speed)
 
-    def _compute_answer_mario_speed(self, mario_speed, *args):
-        distance = const.MARIO_TARGET
-        return distance / mario_speed
-
-    def compute_questions(self):
-        """TODO: Currently not in use!!"""
-        self.df.loc[:, const.QUESTION_COL] = np.random.uniform(
-            low=const.MARIO_SPEED_MIN, high=const.MARIO_SPEED_MAX,
-            size=len(self.df))
-
     def compute_ansers(self):
-        funcs = [self._compute_answer_box, self._compute_answer_pipe,
-                 self._compute_anser_enemy, self._compute_answer_mario_speed]
+        funcs = [self._compute_answer_mario_box, self._compute_answer_enemy_pipe,
+                 self._compute_anser_mario_enemy]
         for func, in_col, out_col in zip(
                 funcs, const.HIDDEN_STATE_COLS, const.ANSWER_COLS):
             self.df.loc[:, out_col] = \

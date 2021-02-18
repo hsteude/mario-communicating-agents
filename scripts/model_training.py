@@ -5,7 +5,7 @@ import argparse
 from pytorch_lightning import seed_everything
 
 seed_everything(42)
-LAST_CKP = 'lightning_logs/version_21/checkpoints/epoch=90-step=2706.ckpt'
+# LAST_CKP = 'lightning_logs/version_21/checkpoints/epoch=90-step=2706.ckpt'
 
 
 def main(args):
