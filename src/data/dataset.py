@@ -7,7 +7,7 @@ import torchvision
 import PIL
 import cv2
 import os
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 
 # cv2.setNumThreads(0)
@@ -18,11 +18,12 @@ class VideoLabelDataset(Dataset):
 
     def __init__(self, csv_file, img_transform=None):
         self.dataframe = pd.read_csv(csv_file)
-        scaler = StandardScaler()
-        self.dataframe.loc[:, const.ANSWER_COLS] = \
+        scaler = MinMaxScaler()
+        self.dataframe.loc[:, const.ANSWER_COLS + const.HIDDEN_STATE_COLS] = \
             scaler.fit_transform(
-            self.dataframe[const.ANSWER_COLS])
+            self.dataframe[const.ANSWER_COLS + const.HIDDEN_STATE_COLS])
         self.img_transform = img_transform
+
 
     def __len__(self):
         """Size of dataset
@@ -35,7 +36,7 @@ class VideoLabelDataset(Dataset):
         answers = self.dataframe.loc[
             index, const.ANSWER_COLS].values.astype(np.float32)
         hidden_states = self.dataframe.loc[
-            index, const.HIDDEN_STATE_COLS].values.astype(np.float32)
+            index, const.HIDDEN_STATE_COLS].values.astype(np.float32) + 1
         if self.img_transform:
             video = self.img_transform(video_path)
         else:

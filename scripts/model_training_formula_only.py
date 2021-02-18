@@ -4,17 +4,18 @@ import argparse
 # from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning import seed_everything
 
-seed_everything(42)
-LAST_CKP = 'lightning_logs/version_21/checkpoints/epoch=90-step=2706.ckpt'
-
+seed_everything(1)
+LAST_CKP = 'lightning_logs/version_8/checkpoints/epoch=179-step=1791.ckpt'
+import torch.multiprocessing
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 def main(args):
     # debugging forward pass
-    lit_module = LitModule(**vars(args))
-    # lit_module = LitModule.load_from_checkpoint(LAST_CKP, **vars(args))
+    # lit_module = LitModule(**vars(args))
+    lit_module = LitModule.load_from_checkpoint(LAST_CKP, **vars(args))
 
-    trainer = pl.Trainer.from_argparse_args(args)
-    # trainer = pl.Trainer(resume_from_checkpoint=LAST_CKP)
+    # trainer = pl.Trainer.from_argparse_args(args)
+    trainer = pl.Trainer(resume_from_checkpoint=LAST_CKP)
     print(f'learning rate: {lit_module.learning_rate}')
     trainer.fit(lit_module)
 
@@ -53,5 +54,6 @@ if __name__ == '__main__':
     parser.add_argument('--validdation_split', type=float, default=0.05)
     parser.add_argument('--pretrain_thres', type=float, default=0.001)
     parser.add_argument('--beta', type=float, default=0.001)
+    parser.add_argument('--lamb', type=float, default=0.1)
     args = parser.parse_args()
     main(args)

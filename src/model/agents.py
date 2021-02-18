@@ -2,6 +2,7 @@ from torch import nn
 import torchvision
 import torch
 import numpy as np
+import itertools
 
 
 class Encoder(nn.Module):
@@ -85,36 +86,52 @@ class Decoder(nn.Module):
         return output
 
 
-class FormulaTransformer():
-    def __init__(self, formula_exponents=['-1', '-.5', '0, 1', '2'], **kwargs):
+class FormulaFeatureGenerator(nn.Module):
+    """This class takes the latend space and generate polynomial-like feature.
+    (actually not a polynomial since also negative exponents are included)
+
+    Number of parameters = permutations of parameter and exponent combinations
+    """
+
+    def __init__(self, formula_exponents=['-1', '-.5', '0', '1', '2'],
+                 enc_dim_lat_space=4,
+                 **kwargs):
+        super(FormulaFeatureGenerator, self).__init__()
         self.formula_exponents = [np.float(e) for e in formula_exponents]
-        self.num_params = len(formula_exponents)
+        self.small_number = 1e-5
+        self.var_list = np.arange(enc_dim_lat_space)
+        var_exps_lists = [[(v, e) for e in self.formula_exponents]
+                          for v in self.var_list]
+        self.combinations = list(itertools.product(*var_exps_lists))
+        self.num_features = len(self.combinations)
 
-    def forward(self, params: torch.tensor, values: torch.tensor):
-        """sum over i of (pi * xi)^^ei) for i in range(num_params)
-        params: output of one decoder
-        values: output of filter (hopefully hidden states)
-        """
-        breakpoint()
-        return torch.sum([p * torch.pow(x, e) for p, x, e in zip(
-            params, values, self.formula_exponents)])
+    def get_feature_names(self):
+        assert hasattr(self, 'combinations'), 'Call fit method first!'
+        feature_names = \
+            ['*'.join([f'x_{c[i][0]}^{c[i][1]}' if c[i][1] != 0 else '1'
+                       for i in self.var_list])
+             for c in self.combinations]
+        return feature_names
 
+    def _create_single_feature(self, X, tup):
+        X[X <= self.small_number] = self.small_number
+        return torch.tensor([torch.prod(torch.tensor(
+            [torch.pow(X[i, j], ei) for j, ei in tup]))
+            for i in range(X.shape[0])])
 
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def forward(self, X):
+        X_ = torch.zeros((X.shape[0], len(self.combinations)))
+        for i, tup in enumerate(self.combinations):
+            X_[:, i] = self._create_single_feature(X, tup)
+        return X_
 
 
+class FormulaDecoder(nn.Module):
+    def __init__(self, dec_num_features, dec_out_dim, **kwargs):
+        super(FormulaDecoder, self).__init__()
+        self.lc = nn.Linear(dec_num_features, dec_out_dim, bias=False)
+        bound = 1e-5
+        torch.nn.init.uniform(self.lc.weight, a=-bound, b=bound)
+
+    def forward(self, pol_features):
+        return self.lc(pol_features)

@@ -7,7 +7,8 @@ from src.data.dataset import (VideoLabelDataset,
                               VideoFolderPathToTensor,
                               VideoResize)
 import src.constants as const
-from src.model.agents import Encoder, Decoder, Filter, FormulaTransformer
+from src.model.agents import (Encoder, FormulaDecoder, Filter,
+                              FormulaFeatureGenerator)
 
 
 class LitModule(pl.LightningModule):
@@ -31,29 +32,30 @@ class LitModule(pl.LightningModule):
             dataset=dataset, lengths=[len_train, len_val],
             generator=torch.Generator())
 
+        # filter init
+        self.filter = Filter(**self.hparams)
+
+        # polynomial like features
+        self.feature_generator = FormulaFeatureGenerator(**self.hparams)
+
         # decoder init
         # the following is ugly. i did it this way, bcause only attributes of
         # type nn.Module will get send to GPUs (e.g. lists of nn.Modules won't)
         dec_names = [f'dec_{d}' for d in range(self.hparams.filt_num_decoders)]
         for dn in dec_names:
-            setattr(self, dn, Decoder(**self.hparams))
+            setattr(self, dn, FormulaDecoder(dec_num_features=self.feature_generator.num_features,
+                                             **self.hparams))
         self.decoding_agents = [getattr(self, dn) for dn in dec_names]
-
-        # filter init
-        self.filter = Filter(**self.hparams)
-
-        self.formula_transformers = [
-            FormulaTransformer(**self.hparams)
-            for i in range(self.hparams.filt_num_decoders)]
 
     def forward(self, hidden_states):
 
         lat_space_filt_ls = self.filter(hidden_states, device=self.device)
-        dec_outs = [dec(ls) for dec, ls in zip(
-            self.decoding_agents, lat_space_filt_ls)]
 
-        out_ls = [form_trans(dec_out, hidden_states) for form_trans, dec_out
-                  in zip(dec_outs, self.formula_transformers)]
+        out_ls = []
+        for dec, ls in zip(self.decoding_agents,  lat_space_filt_ls):
+            ls_trans = self.feature_generator(ls)
+            out = dec(ls_trans)
+            out_ls.append(out)
 
         out = torch.cat(out_ls, axis=1)
         return out
@@ -61,17 +63,21 @@ class LitModule(pl.LightningModule):
     def loss_function(self, dec_outs, answers):
         mse_loss = torch.nn.MSELoss()
         answer_loss = mse_loss(dec_outs, answers)
-        return answer_loss
+        dec_params = torch.cat([dec.lc.weight for dec in self.decoding_agents])
+        param_loss = torch.sum(torch.abs(dec_params))
+        return answer_loss + self.hparams.lamb * param_loss
 
     def training_step(self, batch, batch_idx):
 
         _, answers, hidden_states, _ = batch
         lat_space_filt_ls = self.filter(hidden_states, device=self.device)
-        dec_outs = [dec(ls) for dec, ls in zip(
-            self.decoding_agents, lat_space_filt_ls)]
 
-        out_ls = [form_trans(dec_out, hidden_states) for form_trans, dec_out
-                  in zip(dec_outs, self.formula_transformers)]
+        out_ls = []
+        for dec, ls in zip(self.decoding_agents,  lat_space_filt_ls):
+            ls_trans = self.feature_generator(ls)
+            out = dec(ls_trans)
+            out_ls.append(out)
+
         out = torch.cat(out_ls, axis=1)
 
         loss = self.loss_function(out, answers)
@@ -80,17 +86,17 @@ class LitModule(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
 
-        breakpoint()
         _, answers, hidden_states, _ = batch
         lat_space_filt_ls = self.filter(hidden_states, device=self.device)
-        dec_outs = [dec(ls) for dec, ls in zip(
-            self.decoding_agents, lat_space_filt_ls)]
-        breakpoint()
-        self.formula_transformers[0].forward(dec_outs[0], hidden_states)
 
-        out_ls = [form_trans.forward(dec_out, hidden_states) for form_trans, dec_out
-                  in zip(dec_outs, self.formula_transformers)]
+        out_ls = []
+        for dec, ls in zip(self.decoding_agents,  lat_space_filt_ls):
+            ls_trans = self.feature_generator(ls)
+            out = dec(ls_trans)
+            out_ls.append(out)
+
         out = torch.cat(out_ls, axis=1)
+
         val_loss = self.loss_function(out, answers)
         self.logger.experiment.add_scalars("losses", {"val_loss": val_loss})
         return val_loss
