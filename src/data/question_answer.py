@@ -27,13 +27,19 @@ class QuestionAndOptimalAnswerGenerator():
             (mario_speed - enemy_speed)
 
     def compute_ansers(self):
-        funcs = [self._compute_answer_mario_box, self._compute_answer_enemy_pipe,
+        breakpoint()
+        funcs = [self._compute_answer_mario_box,
+                 self._compute_answer_enemy_pipe,
                  self._compute_anser_mario_enemy]
+        in_cols = [(const.HIDDEN_STATE_COLS[3], const.HIDDEN_STATE_COLS[0]),
+                   (const.HIDDEN_STATE_COLS[2], const.HIDDEN_STATE_COLS[1]),
+                   (const.HIDDEN_STATE_COLS[3], const.HIDDEN_STATE_COLS[2])
+                   ]
         for func, in_col, out_col in zip(
-                funcs, const.HIDDEN_STATE_COLS, const.ANSWER_COLS):
+                funcs, in_cols, const.ANSWER_COLS):
             self.df.loc[:, out_col] = \
-                [func(ms, param) for ms, param in zip(
-                    self.df.mario_speed, self.df[in_col])]
+                [func(in1, in2) for in1, in2 in zip(
+                    self.df[in_col[0]], self.df[in_col[1]])]
 
     def run(self):
         # self.compute_questions()
