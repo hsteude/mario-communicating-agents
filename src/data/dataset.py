@@ -8,6 +8,7 @@ import PIL
 import cv2
 import os
 from sklearn.preprocessing import StandardScaler
+from torchvision.transforms.functional import InterpolationMode
 
 
 # cv2.setNumThreads(0)
@@ -19,9 +20,9 @@ class VideoLabelDataset(Dataset):
     def __init__(self, csv_file, img_transform=None):
         self.dataframe = pd.read_csv(csv_file)
         scaler = StandardScaler()
-        self.dataframe.loc[:, const.ANSWER_COLS] = \
+        self.dataframe.loc[:, const.ANSWER_COLS+const.HIDDEN_STATE_COLS] = \
             scaler.fit_transform(
-            self.dataframe[const.ANSWER_COLS])
+            self.dataframe[const.ANSWER_COLS+const.HIDDEN_STATE_COLS])
         self.img_transform = img_transform
 
     def __len__(self):
@@ -89,7 +90,7 @@ class VideoResize(object):
         'PIL.Image.BILINEAR'
     """
 
-    def __init__(self, size, interpolation=PIL.Image.BILINEAR):
+    def __init__(self, size, interpolation=InterpolationMode.BILINEAR):
         self.size = size
         self.interpolation = interpolation
 
@@ -131,9 +132,7 @@ if __name__ == '__main__':
         labels_path,
         transform=torchvision.transforms.Compose([
             VideoFolderPathToTensor(),
-            VideoResize((224, 224))
-        ])
-    )
+            VideoResize((224, 224))]))
     idx = 100
     video, question, answer = dataset[idx]
     frame0 = torchvision.transforms.ToPILImage()(video[:, 0, :, :])

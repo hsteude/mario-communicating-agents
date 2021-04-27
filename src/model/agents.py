@@ -2,6 +2,30 @@ from torch import nn
 import torchvision
 import torch
 import numpy as np
+import torch.nn.functional as F
+
+
+class SimpleCNN(nn.Module):
+    def __init__(self, enc_rnn_hidden_dim: int = 6, **kwargs):
+        super().__init__()
+        self.conv1 = nn.Conv2d(3, 6, 5)
+        # we use the maxpool multiple times, but define it once
+        self.pool = nn.MaxPool2d(5, 5)
+        # in_channels = 6 because self.conv1 output 6 channel
+        # self.conv2 = nn.Conv2d(6, 16, 5)
+        # 5*5 comes from the dimension of the last convnet layer
+        self.fc1 = nn.Linear(6*44*44, 20)
+        self.fc2 = nn.Linear(20, enc_rnn_hidden_dim)
+        # self.fc3 = nn.Linear(84, 4)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        # x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 6*44*44)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        # x = self.fc3(x)  # no activation on final layer
+        return x
 
 
 class Encoder(nn.Module):
@@ -13,19 +37,23 @@ class Encoder(nn.Module):
                  **kwargs):
         super(Encoder, self).__init__()
 
-        cnn = torchvision.models.resnet18(pretrained=enc_pretrained)
-        if enc_fixed_cnn_weights:
-            for param in cnn.parameters():
-                param.requires_grad = False
+        # cnn = torchvision.models.resnet18(pretrained=enc_pretrained)
+        # if enc_fixed_cnn_weights:
+            # for param in cnn.parameters():
+                # param.requires_grad = False
 
-        cnn_num_features = cnn.fc.in_features
-        cnn.fc = nn.Linear(cnn_num_features, enc_rnn_hidden_dim)
+        # cnn_num_features = cnn.fc.in_features
+        # cnn.fc = nn.Linear(cnn_num_features, enc_rnn_hidden_dim)
 
-        self.cnn = cnn
+        # self.cnn = cnn
+
+
+        self.cnn = SimpleCNN(enc_rnn_hidden_dim=enc_rnn_hidden_dim)
         self.dropout = nn.Dropout(enc_dr_rate)
         self.rnn = nn.LSTM(enc_rnn_hidden_dim, enc_rnn_hidden_dim,
                            enc_rnn_num_layers)
         self.fc_out = nn.Linear(enc_rnn_hidden_dim, enc_dim_lat_space)
+        breakpoint()
 
     def forward(self, videos):
         b_i, c, ts, h, w = videos.shape
@@ -83,4 +111,3 @@ class Decoder(nn.Module):
             output = torch.tanh(h(output))
         output = self.fc_out(output)
         return output
-

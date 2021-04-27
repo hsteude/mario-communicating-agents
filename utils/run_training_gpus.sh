@@ -4,7 +4,7 @@ conda activate mario
 python ./scripts/model_training.py \
         --enc_dr_rate=0 \
         --enc_rnn_hidden_dim=10 \
-        --enc_rnn_num_layers=2 \
+        --enc_rnn_num_layers=1 \
         --enc_dim_lat_space=4 \
         --dec_num_question_inputs=0 \
         --dec_hidden_size=10 \
