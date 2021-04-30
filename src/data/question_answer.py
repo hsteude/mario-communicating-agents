@@ -27,7 +27,6 @@ class QuestionAndOptimalAnswerGenerator():
             (mario_speed - enemy_speed)
 
     def compute_ansers(self):
-        breakpoint()
         funcs = [self._compute_answer_mario_box,
                  self._compute_answer_enemy_pipe,
                  self._compute_anser_mario_enemy]

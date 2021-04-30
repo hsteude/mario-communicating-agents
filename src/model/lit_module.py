@@ -13,6 +13,7 @@ class LitModule(pl.LightningModule):
 
         # encoder init
         self.encoder_agent = Encoder(**self.hparams)
+        self.batch_number=0
 
         # decoder init
         # the following is ugly. I did it this way, bcause only attributes of
@@ -65,13 +66,14 @@ class LitModule(pl.LightningModule):
 
         # loss = self.loss_function(dec_outs, answers,
                                   # self.filter.selection_bias, beta)
+
+        self.batch_number += 1
         loss = self.loss_function_enc_test(enc_out, hidden_states)
         self.logger.experiment.add_scalars("losses", {"train_loss": loss})
         # self.log_selection_biases()
         return loss
 
     def validation_step(self, batch, batch_idx):
-        breakpoint()
         videos, answers, hidden_states, _ = batch
         enc_out = self._shared_eval(videos)
         # dec_outs = self._shared_eval(videos)
@@ -84,7 +86,7 @@ class LitModule(pl.LightningModule):
         # phase switch
         # if val_loss < self.hparams.pretrain_thres:
             # self.pretrain = False
-        # return val_loss
+        return val_loss
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(),
@@ -92,9 +94,10 @@ class LitModule(pl.LightningModule):
 
     def log_selection_biases(self):
         """Logs the selection bias for each agent to tensorboard"""
-        for i in range(self.hparams.filt_num_decoders):
-            self.logger.experiment.add_scalars(
-                f'selection_bias_dec{i}',
-                {f'lat_neu{j}': self.filter.selection_bias[i, j]
-                    for j in range(self.hparams.enc_dim_lat_space)},
-                global_step=self.global_step)
+        pass
+        # for i in range(self.hparams.filt_num_decoders):
+            # self.logger.experiment.add_scalars(
+                # f'selection_bias_dec{i}',
+                # {f'lat_neu{j}': self.filter.selection_bias[i, j]
+                    # for j in range(self.hparams.enc_dim_lat_space)},
+                # global_step=self.global_step)

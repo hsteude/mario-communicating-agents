@@ -4,18 +4,18 @@ import argparse
 # from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning import seed_everything
 from src.data.data_module import VideoDataModule
+from pytorch_lightning.plugins import DDPPlugin
 
 seed_everything(42)
 # LAST_CKP = 'lightning_logs/version_21/checkpoints/epoch=90-step=2706.ckpt'
 
 
 def main(args):
-    breakpoint()
     # debugging forward pass
     lit_module = LitModule(**vars(args))
     # lit_module = LitModule.load_from_checkpoint(LAST_CKP, **vars(args))
 
-    trainer = pl.Trainer.from_argparse_args(args)
+    trainer = pl.Trainer.from_argparse_args(args, plugins=DDPPlugin(find_unused_parameters=False))
     # trainer = pl.Trainer(resume_from_checkpoint=LAST_CKP)
     vdm = VideoDataModule(**vars(args))
     trainer.fit(lit_module, vdm)

@@ -53,7 +53,6 @@ class Encoder(nn.Module):
         self.rnn = nn.LSTM(enc_rnn_hidden_dim, enc_rnn_hidden_dim,
                            enc_rnn_num_layers)
         self.fc_out = nn.Linear(enc_rnn_hidden_dim, enc_dim_lat_space)
-        breakpoint()
 
     def forward(self, videos):
         b_i, c, ts, h, w = videos.shape

@@ -15,12 +15,12 @@ python ./scripts/model_training.py \
         --pretrain_thres=0.4 \
         --beta=0.01 \
         --learning_rate=0.001 \
-        --batch_size=32 \
-        --dl_num_workers=8 \
+        --batch_size=16 \
+        --dl_num_workers=12 \
         --validdation_split=0.05 \
-        --max_epochs=1000 \
         --logger=True \
         --gpus=1 \
-        --accelerator=ddp \
         --no-enc_fixed_cnn_weight \
-        --enc_pretrained 
+        --enc_pretrained \
+        --accelerator=ddp
+        #--max_epochs=1000 \
