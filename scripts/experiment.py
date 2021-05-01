@@ -12,20 +12,26 @@ def main(num_img, labels_table_path, imgs_folder_path):
     # random hidden states
     box_x = np.random.choice(range(300, 800))
     pipe_x = np.random.choice(range(900, 1100))
-    enemy_speed = np.random.choice(range(25, 50))
+    enemy_speed = np.random.choice(range(20, 45))
+    mario_speed = np.random.choice(range(40, 60))
+    while mario_speed <= enemy_speed:
+        enemy_speed = np.random.choice(range(20, 45))
+        mario_speed = np.random.choice(range(30, 60))
 
     game = tools.Control()
     state_dict = {c.MAIN_MENU: main_menu.Menu(),
                   c.LOAD_SCREEN: load_screen.LoadScreen(),
-                  c.LEVEL: level.Level(box_x, pipe_x, enemy_speed),
+                  c.LEVEL: level.Level(
+                      box_x, pipe_x, enemy_speed, mario_speed),
                   c.GAME_OVER: load_screen.GameOver(),
                   c.TIME_OUT: load_screen.TimeOut()}
     game.setup_states(state_dict, c.MAIN_MENU)
     game.main(num_img, imgs_folder_path)
 
     # write paths and random state vals to table
-    header_row = 'imgs_folder_path,box_x,pipe_x,enemy_speed\n'
-    labels_row = f'{imgs_folder_path},{box_x},{pipe_x},{enemy_speed}\n'
+    header_row = 'imgs_folder_path,box_x,pipe_x,enemy_speed,mario_speed\n'
+    labels_row = f'{imgs_folder_path},{box_x},{pipe_x},'\
+        f'{enemy_speed},{mario_speed}\n'
     if not os.path.isfile(labels_table_path):
         with open(labels_table_path, 'a') as fd:
             fd.write(header_row)

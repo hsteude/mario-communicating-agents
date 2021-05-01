@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from torch.utils.data import Dataset
 import pandas as pd
 import src.constants as const
@@ -6,7 +7,8 @@ import torchvision
 import PIL
 import cv2
 import os
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
+from torchvision.transforms.functional import InterpolationMode
 
 
 # cv2.setNumThreads(0)
@@ -17,9 +19,10 @@ class VideoLabelDataset(Dataset):
 
     def __init__(self, csv_file, img_transform=None):
         self.dataframe = pd.read_csv(csv_file)
-        scaler = MinMaxScaler()
-        self.dataframe.loc[:, const.HIDDEN_STATE_COLS] = \
-            scaler.fit_transform(self.dataframe[const.HIDDEN_STATE_COLS])
+        scaler = StandardScaler()
+        self.dataframe.loc[:, const.ANSWER_COLS+const.HIDDEN_STATE_COLS] = \
+            scaler.fit_transform(
+            self.dataframe[const.ANSWER_COLS+const.HIDDEN_STATE_COLS])
         self.img_transform = img_transform
 
     def __len__(self):
@@ -28,16 +31,15 @@ class VideoLabelDataset(Dataset):
         return len(self.dataframe)
 
     def __getitem__(self, index):
-        """Get one sample (including questions and answers"""
+        """Get one sample (including questions and answers)"""
         video_path = self.dataframe.iloc[index].imgs_folder_path
-        questions = self.dataframe.loc[index, const.QUESTION_COL]
         answers = self.dataframe.loc[
-            index, const.ANSWER_COLS].values.astype('float')
+            index, const.ANSWER_COLS].values.astype(np.float32)
         hidden_states = self.dataframe.loc[
-            index, const.HIDDEN_STATE_COLS].values.astype('float')
+            index, const.HIDDEN_STATE_COLS].values.astype(np.float32)
         if self.img_transform:
             video = self.img_transform(video_path)
-        return video, questions, answers, hidden_states, video_path
+        return video, answers, hidden_states, video_path
 
 
 class VideoFolderPathToTensor(object):
@@ -88,7 +90,7 @@ class VideoResize(object):
         'PIL.Image.BILINEAR'
     """
 
-    def __init__(self, size, interpolation=PIL.Image.BILINEAR):
+    def __init__(self, size, interpolation=InterpolationMode.BILINEAR):
         self.size = size
         self.interpolation = interpolation
 
@@ -125,15 +127,12 @@ class VideoResize(object):
 
 if __name__ == '__main__':
     # test for VideoLabelDataset
-    breakpoint()
     labels_path = './data/labels_table_qa.csv'
     dataset = VideoLabelDataset(
         labels_path,
         transform=torchvision.transforms.Compose([
             VideoFolderPathToTensor(),
-            VideoResize((224, 224))
-        ])
-    )
+            VideoResize((224, 224))]))
     idx = 100
     video, question, answer = dataset[idx]
     frame0 = torchvision.transforms.ToPILImage()(video[:, 0, :, :])
