@@ -15,7 +15,7 @@ python ./scripts/model_training.py \
         --pretrain_thres=0.4 \
         --beta=0.01 \
         --learning_rate=0.001 \
-        --batch_size=16 \
+        --batch_size=32 \
         --dl_num_workers=12 \
         --validdation_split=0.05 \
         --logger=True \

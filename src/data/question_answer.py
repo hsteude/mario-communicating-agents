@@ -1,5 +1,4 @@
 import src.constants as const
-import numpy as np
 
 
 class QuestionAndOptimalAnswerGenerator():
@@ -7,6 +6,7 @@ class QuestionAndOptimalAnswerGenerator():
         self.mario_start_x = mario_start_x
         self.enemy_start_x = enemy_start_x
         self.df = df
+        self.df = self.df[self.df.mario_speed > self.df.enemy_speed].copy()
 
     def _compute_answer_mario_box(self, mario_speed, box_x):
         distance = box_x - self.mario_start_x
