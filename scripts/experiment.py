@@ -12,11 +12,8 @@ def main(num_img, labels_table_path, imgs_folder_path):
     # random hidden states
     box_x = np.random.choice(range(300, 800))
     pipe_x = np.random.choice(range(900, 1100))
-    enemy_speed = np.random.choice(range(20, 60))
-    mario_speed = np.random.choice(range(30, 70))
-    while mario_speed <= enemy_speed:
-        enemy_speed = np.random.choice(range(20, 60))
-        mario_speed = np.random.choice(range(30, 70))
+    enemy_speed = np.random.choice(range(20, 45))
+    mario_speed = np.random.choice(range(40, 60))
 
     game = tools.Control()
     state_dict = {c.MAIN_MENU: main_menu.Menu(),

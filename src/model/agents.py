@@ -14,16 +14,14 @@ class SimpleCNN(nn.Module):
         # in_channels = 6 because self.conv1 output 6 channel
         # self.conv2 = nn.Conv2d(6, 16, 5)
         # 5*5 comes from the dimension of the last convnet layer
-        self.fc1 = nn.Linear(6*44*44, 20)
-        self.fc2 = nn.Linear(20, enc_rnn_hidden_dim)
+        self.fc = nn.Linear(6*44*44, enc_rnn_hidden_dim)
         # self.fc3 = nn.Linear(84, 4)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
         # x = self.pool(F.relu(self.conv2(x)))
         x = x.view(-1, 6*44*44)
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = self.fc(x)
         # x = self.fc3(x)  # no activation on final layer
         return x
 
