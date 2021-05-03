@@ -7,7 +7,7 @@ from src.data.data_module import VideoDataModule
 from pytorch_lightning.plugins import DDPPlugin
 
 seed_everything(42)
-# LAST_CKP = 'lightning_logs/version_21/checkpoints/epoch=90-step=2706.ckpt'
+# LAST_CKP = 'lightning_logs/version_11/checkpoints/epoch=15-step=4607.ckpt'
 
 
 def main(args):
@@ -31,10 +31,6 @@ if __name__ == '__main__':
     parser.add_argument('--enc_rnn_hidden_dim', type=int, default=6)
     parser.add_argument('--enc_rnn_num_layers', type=int, default=1)
     parser.add_argument('--enc_dim_lat_space', type=int, default=5)
-    parser.add_argument('--enc_pretrained', default=True,
-                        action=argparse.BooleanOptionalAction)
-    parser.add_argument('--enc_fixed_cnn_weights', default=True,
-                        action=argparse.BooleanOptionalAction)
 
     # decoder related args
     parser.add_argument('--dec_num_question_inputs', type=int, default=0)

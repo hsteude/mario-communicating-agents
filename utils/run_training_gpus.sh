@@ -12,15 +12,13 @@ python ./scripts/model_training.py \
         --dec_out_dim=1 \
         --filt_initial_log_var=-5 \
         --filt_num_decoders=3 \
-        --pretrain_thres=0.4 \
+        --pretrain_thres=0.01 \
         --beta=0.01 \
         --learning_rate=0.001 \
         --batch_size=32 \
-        --dl_num_workers=12 \
+        --dl_num_workers=10 \
         --validdation_split=0.05 \
         --logger=True \
         --gpus=1 \
-        --no-enc_fixed_cnn_weight \
-        --enc_pretrained \
         --accelerator=ddp
         #--max_epochs=1000 \
