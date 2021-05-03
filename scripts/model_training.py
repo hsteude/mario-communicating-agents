@@ -7,7 +7,7 @@ from src.data.data_module import VideoDataModule
 from pytorch_lightning.plugins import DDPPlugin
 
 seed_everything(42)
-# LAST_CKP = 'lightning_logs/version_11/checkpoints/epoch=15-step=4607.ckpt'
+# LAST_CKP = 'lightning_logs/version_16/checkpoints/epoch=11-step=3176.ckpt'
 
 
 def main(args):
