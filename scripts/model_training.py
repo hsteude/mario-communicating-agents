@@ -7,13 +7,13 @@ from src.data.data_module import VideoDataModule
 from pytorch_lightning.plugins import DDPPlugin
 
 seed_everything(42)
-# LAST_CKP = 'lightning_logs/version_16/checkpoints/epoch=11-step=3176.ckpt'
+LAST_CKP = 'lightning_logs/version_28/checkpoints/epoch=74-step=10274.ckpt'
 
 
 def main(args):
     # debugging forward pass
-    lit_module = LitModule(**vars(args))
-    # lit_module = LitModule.load_from_checkpoint(LAST_CKP, **vars(args))
+    # lit_module = LitModule(**vars(args))
+    lit_module = LitModule.load_from_checkpoint(LAST_CKP, **vars(args))
 
     trainer = pl.Trainer.from_argparse_args(args, plugins=DDPPlugin(find_unused_parameters=False))
     # trainer = pl.Trainer(resume_from_checkpoint=LAST_CKP)

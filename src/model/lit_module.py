@@ -32,7 +32,7 @@ class LitModule(pl.LightningModule):
     def loss_function(self, dec_outs, answers, selection_bias, beta):
         mse_loss = torch.nn.MSELoss()
         answer_loss = mse_loss(dec_outs, answers)
-        filter_loss = torch.mean(-torch.sum(selection_bias, axis=1))
+        filter_loss = -torch.sum(selection_bias)
         return answer_loss + beta * filter_loss
 
     def _shared_eval(self, videos):
