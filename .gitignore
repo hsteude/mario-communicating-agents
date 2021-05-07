@@ -6,6 +6,7 @@ figures/training/*
 !figures/training/.gitkeep
 lightning_logs/*
 lightning_logs.backup/*
+lightning_logs.backup2/*
 data/*
 data/.gitkeep
 

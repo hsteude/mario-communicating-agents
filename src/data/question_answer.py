@@ -12,9 +12,9 @@ class QuestionAndOptimalAnswerGenerator():
         distance = box_x - self.mario_start_x
         return distance / mario_speed
 
-    def _compute_answer_enemy_pipe(self, enemy_speed, pipe_x):
-        distance = pipe_x - self.enemy_start_x
-        return distance / enemy_speed
+    def _compute_answer_mario_pipe(self, mario_speed, pipe_x):
+        distance = pipe_x - self.mario_start_x
+        return distance / mario_speed
 
     def _compute_anser_mario_enemy(self, mario_speed, enemy_speed):
         """
@@ -28,10 +28,10 @@ class QuestionAndOptimalAnswerGenerator():
 
     def compute_ansers(self):
         funcs = [self._compute_answer_mario_box,
-                 self._compute_answer_enemy_pipe,
+                 self._compute_anser_mario_enemy,
                  self._compute_anser_mario_enemy]
         in_cols = [(const.HIDDEN_STATE_COLS[3], const.HIDDEN_STATE_COLS[0]),
-                   (const.HIDDEN_STATE_COLS[2], const.HIDDEN_STATE_COLS[1]),
+                   (const.HIDDEN_STATE_COLS[3], const.HIDDEN_STATE_COLS[1]),
                    (const.HIDDEN_STATE_COLS[3], const.HIDDEN_STATE_COLS[2])
                    ]
         for func, in_col, out_col in zip(

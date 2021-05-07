@@ -12,7 +12,7 @@ MARIO_TARGET = 10000
 # columns and stuff
 IMGS_PATH_COL = 'imgs_folder_path'
 HIDDEN_STATE_COLS = ['box_x', 'pipe_x', 'enemy_speed', 'mario_speed']
-ANSWER_COLS = ['answer_mario_box', 'answer_enemy_pipe', 'answer_mario_enemy']
+ANSWER_COLS = ['answer_mario_box', 'answer_mario_pipe', 'answer_mario_enemy']
 
 # Training params
 BATCH_SIZE = 1
