@@ -1,10 +1,14 @@
 import os
 
 # paths
+DATA_VERSION = 1
 DATA_ROOT_PATH = 'data'
-IMGS_SERIES_FOLDER_PATH = os.path.join(DATA_ROOT_PATH, 'imgs_series')
-LABELS_TABLE_PATH = os.path.join(DATA_ROOT_PATH, 'labels_table.csv')
-LABELS_TABLE_QA_PATH = os.path.join(DATA_ROOT_PATH, 'labels_table_qa.csv')
+IMGS_SERIES_FOLDER_PATH = os.path.join(DATA_ROOT_PATH,
+                                       f'imgs_series_{DATA_VERSION}')
+LABELS_TABLE_PATH = os.path.join(DATA_ROOT_PATH,
+                                 f'labels_table_{DATA_VERSION}.csv')
+LABELS_TABLE_QA_PATH = os.path.join(DATA_ROOT_PATH,
+                                    f'labels_table_qa_{DATA_VERSION}.csv')
 
 # Question Answer stuff
 MARIO_TARGET = 10000
