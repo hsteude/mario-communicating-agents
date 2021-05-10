@@ -20,9 +20,10 @@ class VideoLabelDataset(Dataset):
     def __init__(self, csv_file, img_transform=None):
         self.dataframe = pd.read_csv(csv_file)
         scaler = StandardScaler()
-        self.dataframe.loc[:, const.ANSWER_COLS+const.HIDDEN_STATE_COLS] = \
-            scaler.fit_transform(
-            self.dataframe[const.ANSWER_COLS+const.HIDDEN_STATE_COLS])
+        scaling_cols = const.ANSWER_COLS + const.HIDDEN_STATE_COLS \
+            + [const.QUESTION_COL]
+        self.dataframe.loc[:, scaling_cols] = scaler.fit_transform(
+            self.dataframe[scaling_cols])
         self.img_transform = img_transform
 
     def __len__(self):
@@ -37,9 +38,10 @@ class VideoLabelDataset(Dataset):
             index, const.ANSWER_COLS].values.astype(np.float32)
         hidden_states = self.dataframe.loc[
             index, const.HIDDEN_STATE_COLS].values.astype(np.float32)
+        questions = self.dataframe.loc[index, const.QUESTION_COL].astype(np.float32)
         if self.img_transform:
             video = self.img_transform(video_path)
-        return video, answers, hidden_states, video_path
+        return video, answers, hidden_states, questions, video_path
 
 
 class VideoFolderPathToTensor(object):

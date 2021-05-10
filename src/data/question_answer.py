@@ -1,12 +1,18 @@
 import src.constants as const
+import numpy as np
 
 
 class QuestionAndOptimalAnswerGenerator():
     def __init__(self, df, mario_start_x, enemy_start_x):
+        np.random.seed(56)
         self.mario_start_x = mario_start_x
         self.enemy_start_x = enemy_start_x
         self.df = df
-        self.df = self.df[self.df.mario_speed > self.df.enemy_speed].copy()
+        self.df.loc[:, const.QUESTION_COL] = np.random.uniform(
+            const.MARIO_MIN_SPEED,
+            const.MARIO_MAX_SPEED,
+            len(self.df)
+        )
 
     def _compute_answer_mario_box(self, mario_speed, box_x):
         distance = box_x - self.mario_start_x
@@ -30,9 +36,9 @@ class QuestionAndOptimalAnswerGenerator():
         funcs = [self._compute_answer_mario_box,
                  self._compute_anser_mario_enemy,
                  self._compute_anser_mario_enemy]
-        in_cols = [(const.HIDDEN_STATE_COLS[3], const.HIDDEN_STATE_COLS[0]),
-                   (const.HIDDEN_STATE_COLS[3], const.HIDDEN_STATE_COLS[1]),
-                   (const.HIDDEN_STATE_COLS[3], const.HIDDEN_STATE_COLS[2])
+        in_cols = [(const.QUESTION_COL, const.HIDDEN_STATE_COLS[0]),
+                   (const.QUESTION_COL, const.HIDDEN_STATE_COLS[1]),
+                   (const.QUESTION_COL, const.HIDDEN_STATE_COLS[2])
                    ]
         for func, in_col, out_col in zip(
                 funcs, in_cols, const.ANSWER_COLS):
@@ -44,3 +50,4 @@ class QuestionAndOptimalAnswerGenerator():
         # self.compute_questions()
         self.compute_ansers()
         self.df.to_csv(const.LABELS_TABLE_QA_PATH)
+

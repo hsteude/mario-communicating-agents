@@ -79,9 +79,10 @@ class Decoder(nn.Module):
              for i in range(dec_num_hidden_layers)])
         self.fc_out = nn.Linear(dec_hidden_size, dec_out_dim)
 
-    def forward(self, lat_space):
+    def forward(self, lat_space, questions):
         # input = torch.cat((lat_space, questions.view(-1, 1)), axis=1)
-        input = lat_space
+        questions = questions.view(-1, 1)
+        input = torch.cat((lat_space, questions), 1)
         output = torch.tanh(self.fc_in(input))
         for h in self.fc_hidden:
             output = torch.tanh(h(output))
