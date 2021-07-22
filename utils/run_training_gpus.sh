@@ -21,4 +21,3 @@ python ./scripts/model_training.py \
         --logger=True \
         --gpus=1 \
         --accelerator=ddp
-        #-tmax_epochs=1000 \

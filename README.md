@@ -1,9 +1,9 @@
-# Super Mario reference experiments
+# Super Mario Reference Experiments for Communicating Agents
 ## Communicating agents
 
 The idea is to use the super Mario game to generate data for a communicating agent problem as described in the paper in H. Poulsen Nautrup, T. Metger, R. Iten, S. Jerbi, L.M. Trenkwalder, H.Wilming, H.J. Briegel, and R. Renner. "Operationally meaningful representations of physical systems in neural networks" (2020).
 
-The code for the Mario game is based on https://github.com/marblexu/PythonSuperMario.git and modified for our purposes. --> Thanks a lot to marblexu!
+The code for the Mario game is based on https://github.com/marblexu/PythonSuperMario.git and modified for our purposes. --> Thanks a lot marblexu!
 
 
 ### Hidden states:
@@ -34,10 +34,9 @@ The output dimension of $E$ equals the number of hidden states (in this case 3)
 
 #### Filter
 The filter function passes the activation of E's output nodes on to three decoding agents $D_1$ to $D_3$.
-However for each output node the filter function adds a bias term times some gaussian noise.
+However for each output node the filter function adds a bias term times some gaussian error. 
 
 #### Decoding agents
-
 
 
 

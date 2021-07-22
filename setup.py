@@ -20,8 +20,7 @@ setup(
         'tqdm',
         'opencv-python',
         'scikit-learn',
-        'pygame',
-        # 'tensorflow'
+        'pygame'
         ],
     extras_require={'plotting': ['matplotlib', 'jupyter', 'plotly',
                                  'interact']},

@@ -1,14 +1,15 @@
-import torch
-import numpy as np
-from torch.utils.data import Dataset
-import pandas as pd
-import src.constants as const
-import torchvision
-import PIL
-import cv2
 import os
+
+import cv2
+import numpy as np
+import pandas as pd
 from sklearn.preprocessing import StandardScaler
+import torch
+from torch.utils.data import Dataset
+import torchvision
 from torchvision.transforms.functional import InterpolationMode
+
+import src.constants as const
 
 
 # cv2.setNumThreads(0)
@@ -106,7 +107,7 @@ class VideoResize(object):
         """
 
         h, w = self.size
-        C, L, H, W = video.size()
+        C, L, _, _ = video.size()
         rescaled_video = torch.FloatTensor(C, L, h, w)
 
         # use torchvision implemention to resize video frames
@@ -132,14 +133,14 @@ if __name__ == '__main__':
     labels_path = './data/labels_table_qa.csv'
     dataset = VideoLabelDataset(
         labels_path,
-        transform=torchvision.transforms.Compose([
+        img_transform=torchvision.transforms.Compose([
             VideoFolderPathToTensor(),
             VideoResize((224, 224))]))
     idx = 100
-    video, question, answer = dataset[idx]
+    video, answers, hidden_states, questions, video_path = dataset[idx]
     frame0 = torchvision.transforms.ToPILImage()(video[:, 0, :, :])
     frameN = torchvision.transforms.ToPILImage()(video[:, 10, :, :])
     frame0.show()
     frameN.show()
-    print(f'Question {idx}: {question}')
-    print(f'Answer {idx}: {answer}')
+    print(f'Question {idx}: {questions}')
+    print(f'Answer {idx}: {answers}')

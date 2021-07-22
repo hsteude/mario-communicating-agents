@@ -32,7 +32,7 @@ class Encoder(nn.Module):
         self.fc_out = nn.Linear(enc_rnn_hidden_dim, enc_dim_lat_space)
 
     def forward(self, videos):
-        b_i, c, ts, h, w = videos.shape
+        _, _, ts, _, _ = videos.shape
         ts_idx = 0
         y = self.cnn((videos[:, :, ts_idx, :, :]))
         output, (hn, cn) = self.rnn(y.unsqueeze(1))
@@ -76,7 +76,7 @@ class Decoder(nn.Module):
                                dec_hidden_size)
         self.fc_hidden = nn.ModuleList(
             [nn.Linear(dec_hidden_size, dec_hidden_size)
-             for i in range(dec_num_hidden_layers)])
+             for _ in range(dec_num_hidden_layers)])
         self.fc_out = nn.Linear(dec_hidden_size, dec_out_dim)
 
     def forward(self, lat_space, questions):

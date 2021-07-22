@@ -11,9 +11,15 @@ LABELS_TABLE_QA_PATH = os.path.join(DATA_ROOT_PATH,
                                     f'labels_table_qa_{DATA_VERSION}.csv')
 
 # Question Answer stuff
-MARIO_MIN_SPEED = 50
-MARIO_MAX_SPEED = 70
-#TODO: other vars for experiement.py also define here!!
+MARIO_SPEED = 50
+BOX_X_MIN = 300
+BOX_X_MAX = 800
+ENEMY_SPEED_MIN = 20
+ENEMY_SPEED_MAX = 40
+PIPE_X_MIN = 900
+PIPE_X_MAX = 11000
+MARIO_START_X = 190
+ENEMY_START_X = 300
 
 # columns and stuff
 IMGS_PATH_COL = 'imgs_folder_path'
