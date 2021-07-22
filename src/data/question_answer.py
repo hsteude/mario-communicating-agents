@@ -10,8 +10,8 @@ class QuestionAndOptimalAnswerGenerator():
         self.df = df
         # change back to min and max speed if needed
         self.df.loc[:, const.QUESTION_COL] = np.random.uniform(
-            const.MARIO_SPEED,
-            const.MARIO_SPEED,
+            const.MARIO_SPEED_QUEST_MIN,
+            const.MARIO_SPEED_QUEST_MAX,
             len(self.df)
         )
 
@@ -23,7 +23,7 @@ class QuestionAndOptimalAnswerGenerator():
         distance = pipe_x - self.mario_start_x
         return distance / mario_speed
 
-    def _compute_anser_mario_enemy(self, mario_speed, enemy_speed):
+    def _compute_answer_mario_enemy(self, mario_speed, enemy_speed):
         """
         x_m = x_m0 + v_m * t
         x_e = x_e0 + v_e * t
@@ -35,8 +35,8 @@ class QuestionAndOptimalAnswerGenerator():
 
     def compute_ansers(self):
         funcs = [self._compute_answer_mario_box,
-                 self._compute_anser_mario_enemy,
-                 self._compute_anser_mario_enemy]
+                 self._compute_answer_mario_pipe,
+                 self._compute_answer_mario_enemy]
         in_cols = [(const.QUESTION_COL, const.HIDDEN_STATE_COLS[0]),
                    (const.QUESTION_COL, const.HIDDEN_STATE_COLS[1]),
                    (const.QUESTION_COL, const.HIDDEN_STATE_COLS[2])
@@ -50,4 +50,3 @@ class QuestionAndOptimalAnswerGenerator():
     def run(self):
         self.compute_ansers()
         self.df.to_csv(const.LABELS_TABLE_QA_PATH)
-

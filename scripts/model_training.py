@@ -31,6 +31,8 @@ if __name__ == '__main__':
     parser.add_argument('--enc_rnn_hidden_dim', type=int, default=6)
     parser.add_argument('--enc_rnn_num_layers', type=int, default=1)
     parser.add_argument('--enc_dim_lat_space', type=int, default=5)
+    parser.add_argument('--enc_pretrained', type=bool, default=True)
+    parser.add_argument('--enc_fixed_cnn_weights', type=bool, default=True)
 
     # decoder related args
     parser.add_argument('--dec_num_question_inputs', type=int, default=0)

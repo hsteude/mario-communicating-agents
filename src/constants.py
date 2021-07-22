@@ -11,7 +11,7 @@ LABELS_TABLE_QA_PATH = os.path.join(DATA_ROOT_PATH,
                                     f'labels_table_qa_{DATA_VERSION}.csv')
 
 # Question Answer stuff
-MARIO_SPEED = 50
+MARIO_SPEED_OBS = 50
 BOX_X_MIN = 300
 BOX_X_MAX = 800
 ENEMY_SPEED_MIN = 20
@@ -20,6 +20,9 @@ PIPE_X_MIN = 900
 PIPE_X_MAX = 11000
 MARIO_START_X = 190
 ENEMY_START_X = 300
+MARIO_SPEED_QUEST_MIN = 1 # stuff is normalized at the stage of computing optimal answers
+MARIO_SPEED_QUEST_MAX = 2 # stuff is normalized at the stage of computing optimal answers
+
 
 # columns and stuff
 IMGS_PATH_COL = 'imgs_folder_path'

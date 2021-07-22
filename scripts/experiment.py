@@ -16,7 +16,7 @@ def main(num_img, labels_table_path, imgs_folder_path):
     pipe_x = np.random.choice(range(const.PIPE_X_MIN, const.PIPE_X_MAX))
     enemy_speed = np.random.choice(
         range(const.ENEMY_SPEED_MIN, const.ENEMY_SPEED_MAX))
-    mario_speed = const.MARIO_SPEED
+    mario_speed = const.MARIO_SPEED_OBS
 
     game = tools.Control()
     state_dict = {c.MAIN_MENU: main_menu.Menu(),

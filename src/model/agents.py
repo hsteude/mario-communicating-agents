@@ -2,6 +2,8 @@ from torch import nn
 import torch
 import numpy as np
 import torch.nn.functional as F
+import torchvision
+
 
 
 class SimpleCNN(nn.Module):
@@ -22,9 +24,21 @@ class Encoder(nn.Module):
     def __init__(self,  enc_dr_rate: float = 0.0,
                  enc_rnn_hidden_dim: int = 6, enc_rnn_num_layers: int = 1,
                  enc_dim_lat_space: int = 5,
+                 enc_pretrained: bool=True,
+                 enc_fixed_cnn_weights: bool=False,
                  **kwargs):
         super(Encoder, self).__init__()
 
+
+        cnn = torchvision.models.resnet50(pretrained=enc_pretrained)
+        if enc_fixed_cnn_weights:
+            for param in cnn.parameters():
+                param.requires_grad = False
+
+        cnn_num_features = cnn.fc.in_features
+        cnn.fc = nn.Linear(cnn_num_features, enc_rnn_hidden_dim)
+
+        # old
         self.cnn = SimpleCNN(enc_rnn_hidden_dim=enc_rnn_hidden_dim)
         self.dropout = nn.Dropout(enc_dr_rate)
         self.rnn = nn.LSTM(enc_rnn_hidden_dim, enc_rnn_hidden_dim,
