@@ -8,20 +8,23 @@ class QuestionAndOptimalAnswerGenerator():
         self.mario_start_x = mario_start_x
         self.enemy_start_x = enemy_start_x
         self.df = df
-        # change back to min and max speed if needed
-        self.df.loc[:, const.QUESTION_COL] = np.random.uniform(
-            const.MARIO_SPEED_QUEST_MIN,
-            const.MARIO_SPEED_QUEST_MAX,
-            len(self.df)
-        )
+        # self.df.loc[:, const.QUESTION_COL] = np.random.uniform(
+            # const.MARIO_SPEED_QUEST_MIN,
+            # const.MARIO_SPEED_QUEST_MAX,
+            # len(self.df)
+        # )
 
     def _compute_answer_mario_box(self, mario_speed, box_x):
         distance = box_x - self.mario_start_x
         return distance / mario_speed
 
-    def _compute_answer_mario_pipe(self, mario_speed, pipe_x):
-        distance = pipe_x - self.mario_start_x
-        return distance / mario_speed
+    def _compute_answer_enemy_pipe(self, enemy_speed, pipe_x):
+        distance = pipe_x - self.enemy_start_x
+        return distance / enemy_speed
+
+    def _compute_answer_coin_pipe(self, coin_x, pipe_x):
+        distance = pipe_x - coin_x 
+        return distance
 
     def _compute_answer_mario_enemy(self, mario_speed, enemy_speed):
         """
@@ -35,14 +38,16 @@ class QuestionAndOptimalAnswerGenerator():
 
     def compute_ansers(self):
         funcs = [self._compute_answer_mario_box,
-                 self._compute_answer_mario_pipe,
+                 self._compute_answer_enemy_pipe,
+                 self._compute_answer_coin_pipe,
                  self._compute_answer_mario_enemy]
-        in_cols = [(const.QUESTION_COL, const.HIDDEN_STATE_COLS[0]),
-                   (const.QUESTION_COL, const.HIDDEN_STATE_COLS[1]),
-                   (const.QUESTION_COL, const.HIDDEN_STATE_COLS[2])
-                   ]
+        in_cols = [(const.HIDDEN_STATE_COLS[2], const.HIDDEN_STATE_COLS[0]),
+                   (const.HIDDEN_STATE_COLS[3], const.HIDDEN_STATE_COLS[1]),
+                   (const.HIDDEN_STATE_COLS[0], const.HIDDEN_STATE_COLS[1]),
+                   (const.HIDDEN_STATE_COLS[2], const.HIDDEN_STATE_COLS[3])]
         for func, in_col, out_col in zip(
                 funcs, in_cols, const.ANSWER_COLS):
+            print(in_col, out_col)
             self.df.loc[:, out_col] = \
                 [func(in1, in2) for in1, in2 in zip(
                     self.df[in_col[0]], self.df[in_col[1]])]

@@ -44,6 +44,7 @@ class Encoder(nn.Module):
         self.rnn = nn.LSTM(enc_rnn_hidden_dim, enc_rnn_hidden_dim,
                            enc_rnn_num_layers)
         self.fc_out = nn.Linear(enc_rnn_hidden_dim, enc_dim_lat_space)
+        self.activation = nn.Sigmoid()
 
     def forward(self, videos):
         _, _, ts, _, _ = videos.shape
@@ -55,6 +56,7 @@ class Encoder(nn.Module):
             out, (hn, cn) = self.rnn(y.unsqueeze(1), (hn, cn))
         out = self.dropout(out[:, -1])
         out = self.fc_out(out)
+        out = self.activation(out)
         return out
 
 

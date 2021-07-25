@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 import torch
 from torch.utils.data import Dataset
 import torchvision
@@ -20,9 +20,8 @@ class VideoLabelDataset(Dataset):
 
     def __init__(self, csv_file, img_transform=None):
         self.dataframe = pd.read_csv(csv_file)
-        scaler = StandardScaler()
-        scaling_cols = const.ANSWER_COLS + const.HIDDEN_STATE_COLS \
-            + [const.QUESTION_COL]
+        scaler = MinMaxScaler()
+        scaling_cols = const.ANSWER_COLS + const.HIDDEN_STATE_COLS 
         self.dataframe.loc[:, scaling_cols] = scaler.fit_transform(
             self.dataframe[scaling_cols])
         self.img_transform = img_transform
@@ -39,10 +38,10 @@ class VideoLabelDataset(Dataset):
             index, const.ANSWER_COLS].values.astype(np.float32)
         hidden_states = self.dataframe.loc[
             index, const.HIDDEN_STATE_COLS].values.astype(np.float32)
-        questions = self.dataframe.loc[index, const.QUESTION_COL].astype(np.float32)
+        # questions = self.dataframe.loc[index, const.QUESTION_COL].astype(np.float32)
         if self.img_transform:
             video = self.img_transform(video_path)
-        return video, answers, hidden_states, questions, video_path
+        return video, answers, hidden_states, video_path
 
 
 class VideoFolderPathToTensor(object):

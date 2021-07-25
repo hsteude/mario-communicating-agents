@@ -13,7 +13,7 @@ python ./scripts/model_training.py \
         --dec_num_hidden_layers=2 \
         --dec_out_dim=1 \
         --filt_initial_log_var=-5 \
-        --filt_num_decoders=3 \
+        --filt_num_decoders=4 \
         --pretrain_thres=0.4 \
         --beta=0.0002 \
         --learning_rate=0.001 \
