@@ -21,10 +21,11 @@ setup(
         'opencv-python',
         'scikit-learn',
         'pygame',
-        # 'tensorflow'
+        'matplotlib',
+        'jupyter',
+        'plotly',
+        'interact'
         ],
-    extras_require={'plotting': ['matplotlib', 'jupyter', 'plotly',
-                                 'interact']},
     setup_requires=['pytest-runner', 'flake8'],
     tests_require=['pytest']
 )

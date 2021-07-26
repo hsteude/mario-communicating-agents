@@ -35,17 +35,17 @@ class LitModule(pl.LightningModule):
         filter_loss = -torch.sum(selection_bias)
         return answer_loss + beta * filter_loss
 
-    def _shared_eval(self, videos):
+    def _shared_eval(self, videos, questions):
         lat_space = self.encoder_agent(videos)
         lat_space_filt_ls = self.filter(lat_space, device=self.device)
-        dec_outs = [dec(ls) for dec, ls in zip(
+        dec_outs = [dec(ls, questions) for dec, ls in zip(
             self.decoding_agents, lat_space_filt_ls)]
         dec_outs = torch.cat(dec_outs, axis=1)
         return dec_outs
 
     def training_step(self, batch, batch_idx):
-        videos, answers, hidden_states, _ = batch
-        dec_outs = self._shared_eval(videos)
+        videos, answers, _, questions, _ = batch
+        dec_outs = self._shared_eval(videos, questions)
 
         # set beta to 0 and force selection bias to initial value
         # if within pre-training phase (see validation step for phase switch)
@@ -64,8 +64,8 @@ class LitModule(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        videos, answers, hidden_states, _ = batch
-        dec_outs = self._shared_eval(videos)
+        videos, answers, _, questions, _ = batch
+        dec_outs = self._shared_eval(videos, questions)
         beta = 0 if self.pretrain else self.hparams.beta
         val_loss = self.loss_function(dec_outs, answers,
                                       self.filter.selection_bias, beta)

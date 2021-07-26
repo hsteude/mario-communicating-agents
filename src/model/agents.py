@@ -2,6 +2,8 @@ from torch import nn
 import torch
 import numpy as np
 import torch.nn.functional as F
+import torchvision
+
 
 
 class SimpleCNN(nn.Module):
@@ -22,9 +24,21 @@ class Encoder(nn.Module):
     def __init__(self,  enc_dr_rate: float = 0.0,
                  enc_rnn_hidden_dim: int = 6, enc_rnn_num_layers: int = 1,
                  enc_dim_lat_space: int = 5,
+                 enc_pretrained: bool=True,
+                 enc_fixed_cnn_weights: bool=False,
                  **kwargs):
         super(Encoder, self).__init__()
 
+
+        cnn = torchvision.models.resnet50(pretrained=enc_pretrained)
+        if enc_fixed_cnn_weights:
+            for param in cnn.parameters():
+                param.requires_grad = False
+
+        cnn_num_features = cnn.fc.in_features
+        cnn.fc = nn.Linear(cnn_num_features, enc_rnn_hidden_dim)
+
+        # old
         self.cnn = SimpleCNN(enc_rnn_hidden_dim=enc_rnn_hidden_dim)
         self.dropout = nn.Dropout(enc_dr_rate)
         self.rnn = nn.LSTM(enc_rnn_hidden_dim, enc_rnn_hidden_dim,
@@ -32,7 +46,7 @@ class Encoder(nn.Module):
         self.fc_out = nn.Linear(enc_rnn_hidden_dim, enc_dim_lat_space)
 
     def forward(self, videos):
-        b_i, c, ts, h, w = videos.shape
+        _, _, ts, _, _ = videos.shape
         ts_idx = 0
         y = self.cnn((videos[:, :, ts_idx, :, :]))
         output, (hn, cn) = self.rnn(y.unsqueeze(1))
@@ -76,12 +90,13 @@ class Decoder(nn.Module):
                                dec_hidden_size)
         self.fc_hidden = nn.ModuleList(
             [nn.Linear(dec_hidden_size, dec_hidden_size)
-             for i in range(dec_num_hidden_layers)])
+             for _ in range(dec_num_hidden_layers)])
         self.fc_out = nn.Linear(dec_hidden_size, dec_out_dim)
 
-    def forward(self, lat_space):
+    def forward(self, lat_space, questions):
         # input = torch.cat((lat_space, questions.view(-1, 1)), axis=1)
-        input = lat_space
+        questions = questions.view(-1, 1)
+        input = torch.cat((lat_space, questions), 1)
         output = torch.tanh(self.fc_in(input))
         for h in self.fc_hidden:
             output = torch.tanh(h(output))

@@ -1,14 +1,15 @@
-import torch
-import numpy as np
-from torch.utils.data import Dataset
-import pandas as pd
-import src.constants as const
-import torchvision
-import PIL
-import cv2
 import os
+
+import cv2
+import numpy as np
+import pandas as pd
 from sklearn.preprocessing import StandardScaler
+import torch
+from torch.utils.data import Dataset
+import torchvision
 from torchvision.transforms.functional import InterpolationMode
+
+import src.constants as const
 
 
 # cv2.setNumThreads(0)
@@ -20,9 +21,10 @@ class VideoLabelDataset(Dataset):
     def __init__(self, csv_file, img_transform=None):
         self.dataframe = pd.read_csv(csv_file)
         scaler = StandardScaler()
-        self.dataframe.loc[:, const.ANSWER_COLS+const.HIDDEN_STATE_COLS] = \
-            scaler.fit_transform(
-            self.dataframe[const.ANSWER_COLS+const.HIDDEN_STATE_COLS])
+        scaling_cols = const.ANSWER_COLS + const.HIDDEN_STATE_COLS \
+            + [const.QUESTION_COL]
+        self.dataframe.loc[:, scaling_cols] = scaler.fit_transform(
+            self.dataframe[scaling_cols])
         self.img_transform = img_transform
 
     def __len__(self):
@@ -37,9 +39,10 @@ class VideoLabelDataset(Dataset):
             index, const.ANSWER_COLS].values.astype(np.float32)
         hidden_states = self.dataframe.loc[
             index, const.HIDDEN_STATE_COLS].values.astype(np.float32)
+        questions = self.dataframe.loc[index, const.QUESTION_COL].astype(np.float32)
         if self.img_transform:
             video = self.img_transform(video_path)
-        return video, answers, hidden_states, video_path
+        return video, answers, hidden_states, questions, video_path
 
 
 class VideoFolderPathToTensor(object):
@@ -104,7 +107,7 @@ class VideoResize(object):
         """
 
         h, w = self.size
-        C, L, H, W = video.size()
+        C, L, _, _ = video.size()
         rescaled_video = torch.FloatTensor(C, L, h, w)
 
         # use torchvision implemention to resize video frames
@@ -130,14 +133,14 @@ if __name__ == '__main__':
     labels_path = './data/labels_table_qa.csv'
     dataset = VideoLabelDataset(
         labels_path,
-        transform=torchvision.transforms.Compose([
+        img_transform=torchvision.transforms.Compose([
             VideoFolderPathToTensor(),
             VideoResize((224, 224))]))
     idx = 100
-    video, question, answer = dataset[idx]
+    video, answers, hidden_states, questions, video_path = dataset[idx]
     frame0 = torchvision.transforms.ToPILImage()(video[:, 0, :, :])
     frameN = torchvision.transforms.ToPILImage()(video[:, 10, :, :])
     frame0.show()
     frameN.show()
-    print(f'Question {idx}: {question}')
-    print(f'Answer {idx}: {answer}')
+    print(f'Question {idx}: {questions}')
+    print(f'Answer {idx}: {answers}')
