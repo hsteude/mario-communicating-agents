@@ -11,7 +11,6 @@ seed_everything(42)
 
 
 def main(args):
-    # debugging forward pass
     lit_module = LitModule(**vars(args))
     # lit_module = LitModule.load_from_checkpoint(LAST_CKP, **vars(args))
 
