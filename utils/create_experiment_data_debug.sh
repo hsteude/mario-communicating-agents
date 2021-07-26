@@ -2,7 +2,7 @@
 source ~/.zshrc
 conda activate mario
 
-RUNS=1
+RUNS=100
 NUM_IMGS=10
 
 

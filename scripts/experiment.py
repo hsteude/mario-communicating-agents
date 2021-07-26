@@ -1,22 +1,26 @@
-from mario_game.source import tools
-import numpy as np
-from mario_game.source import constants as c
-from src import constants as const
-from mario_game.source.states import main_menu, load_screen, level
-import os
 import argparse
+import os
+
+import numpy as np
+
+from mario_game.source import tools
+from mario_game.source import constants as c
+from mario_game.source.states import level, load_screen, main_menu
+from src import constants as const
 
 
 def main(num_img, labels_table_path, imgs_folder_path):
 
     # random hidden states
-    box_x = np.random.choice(range(300, 800))
-    pipe_x = np.random.choice(range(900, 1100))
-    enemy_speed = np.random.choice(range(20, 45))
-    mario_speed = np.random.choice(range(40, 60))
+    box_x = np.random.choice(range(const.BOX_X_MIN, const.BOX_X_MAX))
+    pipe_x = np.random.choice(range(const.PIPE_X_MIN, const.PIPE_X_MAX))
+    enemy_speed = np.random.choice(
+        range(const.ENEMY_SPEED_MIN, const.ENEMY_SPEED_MAX))
+    mario_speed = np.random.choice(
+        range(const.MARIO_SPEED_OBS_MIN, const.MARIO_SPEED_OBS_MAX))
     while mario_speed <= enemy_speed:
-        enemy_speed = np.random.choice(range(20, 45))
-        mario_speed = np.random.choice(range(30, 60))
+        enemy_speed = np.random.choice(range(const.ENEMY_SPEED_MIN, const.ENEMY_SPEED_MAX))
+        mario_speed = np.random.choice(range(const.MARIO_SPEED_OBS_MIN, const.MARIO_SPEED_OBS_MAX))
 
     game = tools.Control()
     state_dict = {c.MAIN_MENU: main_menu.Menu(),

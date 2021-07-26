@@ -44,3 +44,4 @@ class VideoDataModule(LightningDataModule):
                           batch_size=self.batch_size,
                           num_workers=self.dl_num_workers,
                           pin_memory=True)
+

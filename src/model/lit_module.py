@@ -13,7 +13,6 @@ class LitModule(pl.LightningModule):
 
         # encoder init
         self.encoder_agent = Encoder(**self.hparams)
-        self.batch_number=0
 
         # decoder init
         # the following is ugly. I did it this way, bcause only attributes of
@@ -30,30 +29,24 @@ class LitModule(pl.LightningModule):
         out = self.encoder_agent(videos)
         return out
 
-    def loss_function(self, dec_outs, answers, selection_bias, beta):
+    def loss_function(self, lat_space, hidden_states):
+                      # selection_bias, beta):
         mse_loss = torch.nn.MSELoss()
-        answer_loss = mse_loss(dec_outs, answers)
-        filter_loss = torch.mean(-torch.sum(selection_bias, axis=1))
-        return answer_loss + beta * filter_loss
-
-    def loss_function_enc_test(self, enc_out, hidden_states):
-        mse_loss = torch.nn.MSELoss()
-        hidden_states_loss = mse_loss(enc_out, hidden_states)
-        return hidden_states_loss
+        lat_loss = mse_loss(lat_space, hidden_states)
+        # filter_loss = -torch.sum(selection_bias)
+        return lat_loss # + beta * filter_loss
 
     def _shared_eval(self, videos):
         lat_space = self.encoder_agent(videos)
         # lat_space_filt_ls = self.filter(lat_space, device=self.device)
-        # dec_outs = [dec(ls) for dec, ls in zip(
+        # dec_outs = [dec(ls, questions) for dec, ls in zip(
             # self.decoding_agents, lat_space_filt_ls)]
         # dec_outs = torch.cat(dec_outs, axis=1)
-        # return dec_outs
         return lat_space
 
     def training_step(self, batch, batch_idx):
-        videos, answers, hidden_states, _ = batch
-        enc_out = self._shared_eval(videos)
-        # dec_outs = self._shared_eval(videos)
+        videos, _, hidden_states, _ = batch
+        lat_space = self._shared_eval(videos)
 
         # set beta to 0 and force selection bias to initial value
         # if within pre-training phase (see validation step for phase switch)
@@ -64,23 +57,24 @@ class LitModule(pl.LightningModule):
                     # .fill_(self.hparams.filt_initial_log_var)
         # beta = 0 if self.pretrain else self.hparams.beta
 
-        # loss = self.loss_function(dec_outs, answers,
+        loss = self.loss_function(lat_space, hidden_states)
                                   # self.filter.selection_bias, beta)
 
-        self.batch_number += 1
-        loss = self.loss_function_enc_test(enc_out, hidden_states)
         self.logger.experiment.add_scalars("losses", {"train_loss": loss})
         # self.log_selection_biases()
         return loss
 
     def validation_step(self, batch, batch_idx):
-        videos, answers, hidden_states, _ = batch
-        enc_out = self._shared_eval(videos)
-        # dec_outs = self._shared_eval(videos)
+
+        videos, _, hidden_states, _ = batch
+        lat_space = self._shared_eval(videos)
+        # videos, answers, _, questions, _ = batch
+        # dec_outs = self._shared_eval(videos, questions)
         # beta = 0 if self.pretrain else self.hparams.beta
-        # val_loss = self.loss_function(dec_outs, answers,
+        val_loss = self.loss_function(lat_space, hidden_states)
                                       # self.filter.selection_bias, beta)
-        val_loss = self.loss_function_enc_test(enc_out, hidden_states)
+        val_loss = self.loss_function(lat_space, hidden_states)
+                                      # self.filter.selection_bias, beta)
         self.logger.experiment.add_scalars("losses", {"val_loss": val_loss})
 
         # phase switch
@@ -92,9 +86,8 @@ class LitModule(pl.LightningModule):
         return torch.optim.Adam(self.parameters(),
                                 lr=self.learning_rate)
 
-    def log_selection_biases(self):
-        """Logs the selection bias for each agent to tensorboard"""
-        pass
+    # def log_selection_biases(self):
+        # """Logs the selection bias for each agent to tensorboard"""
         # for i in range(self.hparams.filt_num_decoders):
             # self.logger.experiment.add_scalars(
                 # f'selection_bias_dec{i}',
