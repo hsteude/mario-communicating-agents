@@ -16,7 +16,7 @@ python ./scripts/model_training.py \
         --filt_num_decoders=4 \
         --pretrain_thres=0.1 \
         --beta=0.0002 \
-        --learning_rate=0.0001 \
+        --learning_rate=0.001 \
         --batch_size=64 \
         --dl_num_workers=12 \
         --validdation_split=0.1 \
