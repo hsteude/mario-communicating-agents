@@ -50,7 +50,7 @@ class Encoder(nn.Module):
         _, _, ts, _, _ = videos.shape
         ts_idx = 0
         y = self.cnn((videos[:, :, ts_idx, :, :]))
-        output, (hn, cn) = self.rnn(y.unsqueeze(1))
+        _, (hn, cn) = self.rnn(y.unsqueeze(1))
         for ts_idx in range(1, ts):
             y = self.cnn((videos[:, :, ts_idx, :, :]))
             out, (hn, cn) = self.rnn(y.unsqueeze(1), (hn, cn))
@@ -95,10 +95,9 @@ class Decoder(nn.Module):
              for _ in range(dec_num_hidden_layers)])
         self.fc_out = nn.Linear(dec_hidden_size, dec_out_dim)
 
-    def forward(self, lat_space, questions):
+    def forward(self, lat_space):
         # input = torch.cat((lat_space, questions.view(-1, 1)), axis=1)
-        questions = questions.view(-1, 1)
-        input = torch.cat((lat_space, questions), 1)
+        input = lat_space 
         output = torch.tanh(self.fc_in(input))
         for h in self.fc_hidden:
             output = torch.tanh(h(output))

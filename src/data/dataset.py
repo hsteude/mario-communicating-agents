@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 import torch
 from torch.utils.data import Dataset
 import torchvision
@@ -20,7 +20,7 @@ class VideoLabelDataset(Dataset):
 
     def __init__(self, csv_file, img_transform=None):
         self.dataframe = pd.read_csv(csv_file)
-        scaler = MinMaxScaler()
+        scaler = StandardScaler()
         scaling_cols = const.ANSWER_COLS + const.HIDDEN_STATE_COLS 
         self.dataframe.loc[:, scaling_cols] = scaler.fit_transform(
             self.dataframe[scaling_cols])

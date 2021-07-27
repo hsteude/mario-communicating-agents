@@ -14,21 +14,23 @@ experiments and questions, which are described in the paper in detail.
   1. Position of coin ($x_{coin}$) 
   1. Speed of first enemy ($v_{enemy}$)
   2. Position of first pipe ($x_{pipe}$)
+  3. Marios speed
 
 <img src="resources/figures/mario1.png" alt="drawing" width="200"/>
 <img src="resources/figures/mario2.png" alt="drawing" width="200"/>
 
 ### Reference experiment
   - Start game with randomly selected values for hidden states  
-  - Let Mario run (walk) at normal and constant speed
+  - Let Mario run (walk) at normal and constant speed (speed is a random
+    variable in this case)
   - Observations:
     - Some number (in our case 10) of pictures of the game taken at equal $\Delta t$s
 
 ### Questions
-Given Mario's running speed (as question input in form of a random variable), at what point in time does Mario need to jump in order to:
-  - Kill the enemy?
-  - Get the coin from the first question mark?
-  - Overcome the pipe?
+  - When does Mario need to jump in order to Kill the enemy?
+  - When does Mario need to jump in order get the coin from the first question mark?
+  - When does Mario need to jump in order overcome the pipe?
+  - What is the distance between the coin box and the pipe?
 
 ### Neural net implementation
 #### Encoding agents
@@ -42,7 +44,7 @@ in a RNN. As a last step, the hidden state of the RNN is processed in a fully
 connected NN in order to generate the latent space variables.
 
 #### Filter
-The filter function passes the activation of E's output nodes on to three decoding agents $D_1$ to $D_3$.
+The filter function passes the activation of E's output nodes on to three decoding agents $D_1$ to $D_4$.
 However for each output node the filter function adds a bias term times some Gaussian error. 
 This helps in disentangling the underlying factors of variation. Please refer to
 the paper for a more detailed explanation.
