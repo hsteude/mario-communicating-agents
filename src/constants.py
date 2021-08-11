@@ -19,8 +19,8 @@ ENEMY_SPEED_MIN = 25
 ENEMY_SPEED_MAX = 40
 PIPE_X_MIN = 900
 PIPE_X_MAX = 1100
-MARIO_START_X = 190
-ENEMY_START_X = 300
+MARIO_START_X = 1
+ENEMY_START_X = 2
 MARIO_SPEED_QUEST_MIN = 1 # stuff is normalized at the stage of computing optimal answers
 MARIO_SPEED_QUEST_MAX = 2 # stuff is normalized at the stage of computing optimal answers
 
@@ -28,7 +28,7 @@ MARIO_SPEED_QUEST_MAX = 2 # stuff is normalized at the stage of computing optima
 # columns and stuff
 IMGS_PATH_COL = 'imgs_folder_path'
 HIDDEN_STATE_COLS = ['box_x', 'pipe_x', 'mario_speed', 'enemy_speed']
-ANSWER_COLS = ['answer_mario_box', 'answer_enemy_pipe', 'answer_coin_pipe', 'answer_mario_enemy']
+ANSWER_COLS = ['answer_mario_box', 'answer_enemy_pipe', 'answer_mario_pipe', 'answer_mario_enemy']
 #z QUESTION_COL = 'question_mario_speed'
 
 # encoder params

@@ -21,7 +21,7 @@ class VideoLabelDataset(Dataset):
     def __init__(self, csv_file, img_transform=None):
         self.dataframe = pd.read_csv(csv_file)
         scaler = StandardScaler()
-        scaling_cols = const.ANSWER_COLS + const.HIDDEN_STATE_COLS 
+        scaling_cols = const.ANSWER_COLS
         self.dataframe.loc[:, scaling_cols] = scaler.fit_transform(
             self.dataframe[scaling_cols])
         self.img_transform = img_transform
